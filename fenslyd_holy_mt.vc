@@ -1,0 +1,173 @@
+void start() 
+{
+	///dualmode for the HUD.
+	V1_StartDualMode( curmap.rstring+",R" );
+
+	InitMap();
+	
+	SotsHudToggle(1);
+	SotsHudDungeonMode(1);
+	
+	V1_StartMusic( "res/music/mount03.mp3" );
+	SetMusicVolume( 15 );
+	
+	SotsHudBanner( "Fenslyd Holy Mountain" );
+}
+
+void exit_to_overworld()
+{
+	int i = 0;
+	
+	AutoText( T_GRUE, "Hey, go up the mountain.  Jerk." );
+	AutoText( T_GRUE, "By the way, this music.\ is from Hypno from 1998.  Whee!" );
+
+	i = Prompt( T_GRUE, "Return to Alden Castle?", "(protip: you can't come back)", "", "Let me go!|I'll stay.");
+
+	if( i == 0 )
+	{
+		/// the overworld is Erikk's Study for now
+		V1_MapSwitch( "aldencia.map",228,40,TCIRCLE );
+	}
+}
+
+void to_screen_2()
+{
+	warp(38,80,TCROSS);
+	
+	
+}
+
+void to_screen_1()
+{
+	warp(142,26,TCROSS);
+}
+
+void to_screen_3()
+{
+	warp(27,203,TCROSS);
+}
+
+void to_screen_2_top()
+{
+	warp(40,34,TCROSS);
+}
+
+void demo_1()
+{
+	if( !flags[100] )
+	{
+		flags[100] = 1;
+		
+		AutoText( T_GRUE, "So, this map originally dates from 1999.  It's got a common problem in a lot of my older maps, being that it's got a few nice bits, but is too long without enough visual variation.  Instead of remaking this entire map, I'll probably be putting some gimmicks in to make it more interesting.  For this area, I'm thinking the old 'dodge the boulder' gag." );
+	}
+}
+
+void demo_2()
+{
+	if( !flags[101] )
+	{
+		flags[101] = 1;
+		
+		AutoText( T_GRUE, "While this is one of the first mountains I made that wasn't a nearly-direct ripoff of FF4's mountains, it still has some visual callbacks to Mt. Ordeals.  All in all I'm happy with the nighttime seashore parallax background here." );
+	}
+}
+
+void demo_3()
+{
+	if( !flags[102] )
+	{
+		flags[102] = 2;
+		
+		AutoText( T_GRUE, "Oooo.|Dodge those imaginary boulders, O!" );
+		AutoText( T_ONAM, "...You're a dick." );
+		AutoText( T_GRUE, "I'm an old-testement god! :D" );
+	}
+}
+
+
+void demo_4()
+{
+	if( !flags[103] )
+	{
+		flags[103] = 2;
+		
+		AutoText( T_GRUE, "This right here is one of the classic RPG level problems.  Onam went 'up', and instead of the exit being at the bottom of this area, it's at the top!" );
+		AutoText( T_GRUE, "Anyways, to solve this, you need to have a change-face variable in your warping function that changes your sprite's facing specify in your warping function." );
+		AutoText( T_GRUE, "Even after that, though, you have a problem because the user is likely to still be pressing 'up'.  So they can fly right back through the door.  There are several solutions to this problem, but the one I'm likely to eventually get to is to have a warp to this new area, sans-Onam, then have him visible walk on-screen through the door, giving the player a moment to process the orientation change." );
+	}
+}
+
+void demo_5()
+{
+	if( !flags[104] )
+	{
+		flags[104] = 2;
+		
+		AutoText( T_GRUE, "This entire tileset is lacking in variation.  The floor is amazingly repetitive, and the walls, while a little less seamy, are lacking in variation.  Also, the color scheme is waaaay too monochromatic." );
+	}
+}
+
+
+void demo_6()
+{
+	if( !flags[105] )
+	{
+		flags[105] = 2;
+		
+		AutoText( T_GRUE, "This is probably the worst offender than the FF4 visuals on this map.  Very 'last save point of Mt. Ordeals'-y." );
+	}
+}
+
+
+void demo_7()
+{
+	if( !flags[106] )
+	{
+		flags[106] = 2;
+		
+		AutoText( T_GRUE, "Okay, I'm about done with the talking about how poorly laid out this map is.  It's one of the better old-maps, too.  I'll have a bit of work cut out for me to bring some life into this map." );
+		AutoText( T_GRUE, "To the left is the 'main' path, and continuing right will bring you to a sidequest path.  The weight and direction of the right path at this intersection makes it feel like the main concourse, though, and the coloration serves to hide the left path somewhat.  This will have to be remedied." );
+		AutoText( T_GRUE, "Anyways, you can trigger an event by talking to the base of each peak.  That's all for me tonight!" );
+		AutoText( T_ONAM, "Thank god." );
+	}
+}
+
+void demo_8()
+{
+	if( !flags[107] )
+	{
+		flags[107] = 2;
+		
+		AutoText( T_GRUE, "Man.  Every stalagmite looks the same, looks horrible, and stalagmites don't occur on mountains, only in caves.  This is AWFUL." );
+		AutoText( T_ONAM, "...weren't you shutting up?" );
+	}
+}
+
+void sprite_look()
+{
+	camScrollTo( (104*16)-(ImageWidth(screen)/2), (146*16)-(ImageHeight(screen)/2), 300 );
+	wait( 300 );
+	camReturnToPlayer( getPlayer(), 200 );
+}
+
+void sword_look()
+{
+	if( !flags[108] )
+	{
+		AutoText( T_ONAM, "Behold!  A Macguffin!" );
+	}
+	
+	camScrollTo( (44*16)-(ImageWidth(screen)/2), (125*16)-(ImageHeight(screen)/2), 300 );
+	
+	wait( 300 );
+	
+	camReturnToPlayer( getPlayer(), 200 );
+	
+	if( !flags[108] )
+	{
+		AutoText( T_ONAM, "Eh.  I've seen Macguffinier." );
+		flags[108] = 1;
+	}
+}
+
+

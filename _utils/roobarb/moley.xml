@@ -1,0 +1,16 @@
+<xml>
+  <character name="moley" source="moley.gif" tcol="155,155,155">
+    <view name="default" type="row" pad="1,1,1,1" dims="64,64"/>
+    <anim name="l_walk" addr="0" str="F0W10F1W10F2W10F1W10F0W10F3W10F4W10F3W10" />
+    <anim name="r_walk" addr="1" str="F0W10F1W10F2W10F1W10F0W10F3W10F4W10F3W10" />
+    <anim name="u_walk" addr="2" str="F0W10F1W10F2W10F1W10F0W10F3W10F4W10F3W10" />
+    <anim name="d_walk" addr="3" str="F0W10F1W10F2W10F1W10F0W10F3W10F4W10F3W10" />
+    <anim name="l_attack" addr="4" str="F0W20F1W20F2W20F3W20F4W20" />
+    <anim name="r_attack" addr="5" str="F0W20F1W20F2W20F3W20F4W20" />
+    <anim name="u_attack" addr="6" str="F0W20F1W20F2W20F3W20F4W20" />
+    <anim name="d_attack" addr="7" str="F0W20F1W20F2W20F3W20F4W20" />
+    <anim name="spell" addr="8" str="F0W20F1W20F2W20F3W20F2W20F1W20" />
+    <anim name="hit" addr="9" str="F0W30F1W30F2W30F3W30" />
+    <anim name="die" addr="10" str="F0W20F1W20F2W20F3W20F4W20F5W20F6W10F7W150" />
+  </character>
+</xml>

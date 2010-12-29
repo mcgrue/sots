@@ -1,0 +1,174 @@
+// menu_choice.vc for Sully www.verge-rpg.com
+// Zip 05/09/2004
+
+
+//        -----------------
+//       Choice Box
+//        -----------------
+// Some different versions as they are all horrible
+
+// Press 'K' to call this function. A choice box tester
+
+void MenuChoiceboxTrigger()
+{
+	//MenuChoiceBox("How IS Grue today?", "Hunky dory|Hung over|Hangdoged");
+	//MenuChoiceBoxVar("How IS Grue today?", "Hunky dory|Hung over|Hangdoged|Hell yeah");
+	//MenuChoiceBoxWin("How IS Grue today?", "Hunky dory|Hung over|Hangdoged|Hell yeah");
+	int hitme = PromptWrap(1, "What's the point of spending years learning the arcane secrets of our universe if you're not going to abuse them?",
+	"Shop Me!|Test summat!|Menu time!|Fuck off!");
+	switch (hitme)
+	{
+		case 0:
+//		{
+			MenuShop("Atlas_Scroll, Iron_Sword, Herb, Tower_Shield");
+//		}
+		case 1:
+//		{
+			Banner(str(_menu_on), 200);
+//		}
+		case 2:
+//		{
+			MenuEntry();
+//		}
+	}
+}
+
+
+// Basic ugly choice box. Pants
+int MenuChoiceBox(string question, string choices)
+{
+	int i;
+	int count = TokenCount(choices, "|");
+	if (count > 4) ErrorHandler("Moar than 4 options passed to the choicebox. This will cause graphical oddness");
+	menu_item = 0;
+	while(!MenuConfirm())
+	{
+		MenuBackGroundDraw(); // Draw universal things
+
+		menu_item = MenuControlArrows(menu_item, count);
+		MenuDrawBackground(5, 185, 315, 235, 1);
+		PrintString(12, 192, screen, textfont, question);
+		for(i = 0; i < count; i++)
+		{
+			PrintString((i / 2) * 150 + 20, (i % 2) * 14 + 206, screen, textfont, GetToken(choices, "|", i));
+		}
+		PrintString((menu_item / 2) * 150 + 10, (menu_item % 2) * 14 + 206, screen, textfont, ">");
+		ShowPage();
+	}
+	return menu_item;
+}
+
+// Expand-to-fit choice box
+int MenuChoiceBoxVar(string question, string choices)
+{
+	int i;
+	int count = TokenCount(choices, "|");
+	if (count > 6) ErrorHandler("Moar than 6 options passed to the choicebox. This will cause graphical oddness");
+	menu_item = 0;
+	while(!MenuConfirm())
+	{
+		MenuBackGroundDraw(); // Draw universal things
+
+		menu_item = MenuControlArrows(menu_item, count);
+		MenuDrawBackground(5, 215 - (14 * count), 315, 235, 1);
+		PrintString(12, 220 - (14 * count), screen, textfont, question);
+		for(i = 0; i < count; i++)
+		{
+			PrintString(20, 232 - ((count - i)  * 14), screen, textfont, GetToken(choices, "|", i));
+		}
+		PrintString(10, 232 - ((count - menu_item)  * 14), screen, textfont, ">");
+		ShowPage();
+	}
+	return menu_item;
+}
+
+// Uses subwindow, but still doesn't fit in skimpy textbox space well
+int MenuChoiceBoxWin(string question, string choices)
+{
+	int i;
+	int count = TokenCount(choices, "|");
+	menu_item = 0;
+	while(!MenuConfirm())
+	{
+		MenuBackGroundDraw(); // Draw universal things
+
+		menu_item = MenuControlArrows(menu_item, count);
+		if (menu_start + 1 < menu_item) menu_start = menu_item - 1;
+		else if (menu_start > menu_item) menu_start = menu_item;
+		MenuDrawBackground(5, 185, 315, 235, 1);
+		MenuDrawSubWindow(10, 200, 310, 230, menu_item, 14, count, menu_start, 4);
+		PrintString(12, 190, screen, textfont, question);
+		for(i = menu_start; i < count; i++)
+		{
+			PrintString(25, (i - menu_start) * 14  + 204, screen, textfont, GetToken(choices, "|", i));
+			if (menu_start + 1 <= i) i = count + 1;
+		}
+		ShowPage();
+	}
+	return menu_item;
+}
+
+// vec's lovely tbox for reference
+/*
+void MyTextBox(int sp, string s1, string s2, string s3)
+{
+	timer=0;
+	while (!b1 && timer/2<=len(s1))
+	{
+		Render();
+		TBlitFrame(1, SPEECH_Y, speechprt, sp, screen);
+		SetLucent(50);
+		RectFill(3, 187, 317, 236, RGB(0,0,255), screen);
+		SetLucent(0);
+		TBlit(0, 184, textboxframe, screen);
+		PrintString(6, 190, screen, textfont, left(s1,timer/2));
+		ShowPage();		
+	}
+	
+	timer=0;
+	while (!b1 && timer/2<=len(s2))
+	{
+		Render();
+		TBlitFrame(1, SPEECH_Y, speechprt, sp, screen);
+		SetLucent(50);
+		RectFill(3, 187, 317, 236, RGB(0,0,255), screen);
+		SetLucent(0);
+		TBlit(0, 184, textboxframe, screen);
+		PrintString(6, 190, screen, textfont, s1);
+		PrintString(6, 204, screen, textfont, left(s2,timer/2));
+		ShowPage();	
+	}
+	
+	timer=0;
+	while (!b1 && timer/2<=len(s3))
+	{
+		Render();
+		TBlitFrame(1, SPEECH_Y, speechprt, sp, screen);
+		SetLucent(50);
+		RectFill(3, 187, 317, 236, RGB(0,0,255), screen);
+		SetLucent(0);
+		TBlit(0, 184, textboxframe, screen);
+		PrintString(6, 190, screen, textfont, s1);
+		PrintString(6, 204, screen, textfont, s2);
+		PrintString(6, 218, screen, textfont, left(s3,timer/2));
+		ShowPage();		
+	}
+	Unpress(1);
+	
+	while (!b1)
+	{
+		Render();
+		TBlitFrame(1, SPEECH_Y, speechprt, sp, screen);
+		SetLucent(50);
+		RectFill(3, 187, 317, 236, RGB(0,0,255), screen);
+		SetLucent(0);
+		TBlit(0, 184, textboxframe, screen);
+		PrintString(6, 190, screen, textfont, s1);
+		PrintString(6, 204, screen, textfont, s2);
+		PrintString(6, 218, screen, textfont, s3);
+		ShowPage();	
+	}
+	Unpress(1);
+}
+
+*/

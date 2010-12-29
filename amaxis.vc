@@ -1,0 +1,50 @@
+void start() 
+{ 
+	V1_StartDualMode( "4,1,E,2,3,5,R,R" );
+	
+	InitMap();
+	
+	SotsHudToggle(1);
+	
+	V1_StartMusic( "res/music/town03.mp3" );
+	
+	SotsHudBanner( "Town of Amaxis" );
+}
+
+void to_overworld() 
+{ 
+	hudOverworldLocationOverride = "Western Aldencia";
+	
+	v1_mapswitch("World.map" , 639,308 ,TWIPE);
+}
+
+void greeterTalk()
+{
+	AutoText( 0, "Welcome to Amaxis, capital of Aldencia!" );
+	AutoText( T_ONAM, "I thought Alden Castle was the Capital!  That's where the king is, after all..." );
+	AutoText( 0, "(sigh) Fine..." );
+	AutoText( 0, "Welcome to Amaxis, the... place where the county fair is held." );
+}
+
+void babeTalk()
+{
+	AutoText( 0, "Tee hee!  Hiya cutie!" );
+	AutoText( T_ONAM, "...uhhhhh..." );
+	AutoText( 0, "Blame that meanie grue.  He hasn't ported over the lady sprites yet!" );
+	AutoText( T_ONAM, "What a cruel and uncaring god." );
+}
+
+void groupieTalk()
+{
+	AutoText( 0, "OMG!  Teh Pruince!  Cna I haev ur autograf?!" );
+}
+
+void hickTalk()
+{
+	AutoText( 0, "Gawrsh..." );
+}
+
+void bardTalk()
+{
+	AutoText( 0, "Let me sing you a song of the woods..." );
+}

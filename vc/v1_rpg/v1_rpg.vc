@@ -1,0 +1,1116 @@
+/***************************************************************************
+*                                                                          *
+*                    V1RPG VergeC Library for Verge3                       *
+*                        Copyright (C)2004 vecna                           *
+*                                                                          *
+***************************************************************************/
+
+#include "vc/v1_rpg/animation.vc"
+#include "vc/v1_rpg/v1_maineffects.vc"
+#include "vc/v1_rpg/v1_weather.vc"
+#include "vc/v1_rpg/v1_simpletype.vc"
+
+/************************** entity.face constants ****************************/
+#define FACE_UP			1
+#define FACE_DOWN		2
+#define FACE_LEFT		3
+#define FACE_RIGHT		4
+
+int FacingUp() {	if( Entity.Face[GetPlayer()] == FACE_UP ) return 1;	return 0;		}
+int FacingDown() {	if( Entity.Face[GetPlayer()] == FACE_DOWN ) return 1;	return 0;	}
+int FacingLeft() {	if( Entity.Face[GetPlayer()] == FACE_LEFT ) return 1;	return 0;	}
+int FacingRight() {	if( Entity.Face[GetPlayer()] == FACE_RIGHT ) return 1;	return 0;	}
+
+
+/******************* Different fades for the fade-system *********************/
+
+#define TNONE			0
+#define TBLACK			1
+#define TWHITE			2
+#define TCROSS			3
+#define TBOX			4
+#define TWIPE			5
+#define	TCIRCLE			6
+
+/************************* stuff you should change ************************/
+
+
+
+/****** Textbox defines *******/
+
+//how many lines of font per textbox
+#define TEXTBOX_LINES		6
+
+//how much y-space to add to the bottom of a textbox line.
+#define TEXTBOX_Y_BUFF		2
+
+//the coordinates of the topleft corner of the textbox's border
+#define TEXTBOX_BORDER_X1	1
+#define TEXTBOX_BORDER_Y1	149
+
+//the coordinates of the bottomright corner of the textbox's border
+#define TEXTBOX_BORDER_WIDTH	317
+#define TEXTBOX_BORDER_HIGH		90
+
+//the drawing-area of the textbox 
+//(the boundry you want the text to actually sit in)
+
+#define TEXTBOX_TEXTAREA_X		88	
+#define TEXTBOX_TEXTAREA_Y		154	
+#define TEXTBOX_TEXTAREA_WIDTH	227	
+#define TEXTBOX_TEXTAREA_HIGH	80
+
+//the coordinates of the bobbing arrow for TextBoxM()
+#define TEXTMORE_X		310
+#define TEXTMORE_Y		232
+
+
+/****** Speech portrait defines *******/
+
+//the x/y coordinates of the topleft corner of the speech portrait
+#define SPEECH_X		6
+#define SPEECH_Y		154
+
+
+/****** Proptbox defines *******/
+
+
+//the x of the left-side of the promptbox.  
+//  to auto-right-align with the textbox, set to any value higher than the current 
+//  x-resolution.  10000 is a safe value for this for the next few years at least. ;)
+#define PROMPT_X		10000
+
+//the fixed width of the promptbox.  set to 0 for dynamic mode!
+#define PROMPT_WIDTH	0
+
+
+
+//the y of the bottom edge of the promptbox.  If you'd rather define the top edge, 
+//  set this to 0 and PROMPT_Y will be used for the top edge.  If PROMPT_BOTM_Y is nonzero, 
+//  PROMPT_Y is completely ignored.
+#define PROMPT_BOTM_Y	190
+#define PROMPT_Y		1
+
+
+
+//how much y-space to add to the bottom of a promptbox line.
+#define PROMPT_Y_BUFF		2
+
+//max promptbox options
+#define MAX_PROMPT_OPTIONS	8
+
+//the padding on the interior of the promptbox.
+#define PROMPT_PADDING	4
+
+//rawr
+int global_noscroll = 1;
+
+/***************************** gamestate data *****************************/
+
+int v1_vclayer = DuplicateImage(screen);
+int v1_vclayer2 = DuplicateImage(screen);
+
+
+
+
+
+
+
+/****************************** internal data *****************************/
+
+int textboxframe;
+int textmore;
+
+int textfont = LoadFont("res\system\font3_vw.gif");
+int SmallFont = LoadFont("res\system\smallfont3.gif");
+
+//something to switch the font used by the textbox.
+// initially set to whatever you want.
+int textBox_font = textfont; 
+
+//something to switch the font used by the promptbox.
+// initially set to whatever you want.
+int promptBox_font = textfont;
+
+int interface_volume	= 85;
+int sfx_volume = 85;
+int global_music_volume = 0;
+
+// The (x,y) coordinates for the 
+//
+int mapswitchx, mapswitchy, mapswitche = TBLACK;
+
+string curmusic;
+
+int vc_quake_on, vc_quake_x, vc_quake_y, q_original_x, q_original_y;
+int tint_on, tint_color, tint_lucent;
+int vc_filter_on, vc_filter;
+
+int sfx_waves;
+int wavetimer;
+
+int sparkle1 = LoadAnimation("res/images/story_fx/sparkle1.gif", 16, 32);
+int sparkle2 = LoadAnimation("res/images/story_fx/sparkle2.gif", 16, 16);
+int sparkle3 = LoadAnimation("res/images/story_fx/sparkle3.gif", 16, 16);
+
+/********************************** code **********************************/
+
+//
+//
+//
+void V1RPG_RenderFunc()
+{
+	//for weather effects
+	RenderWeather();
+	
+	if( vc_filter_on ) {
+		ColorFilter( vc_filter, screen );
+	}
+	
+	TBlit(0, 0, v1_vclayer, screen);
+	
+	//for vclayer tinting.
+	if ( tint_on )
+	{
+		SetLucent(tint_lucent);
+		RectFill(0, 0, 320, 240, tint_color, screen);
+		SetLucent(0);
+	}
+	
+	//for continuous quaking!
+	if( vc_quake_on )
+	{
+		//toggles cameratracking.  Since we need to have xwin and ywin update
+		//and they only update during Render(), and this is a HookRender function,
+		//we need to do this activity every-other render.
+		if( cameratracking ) {
+			cameratracking = 0;
+		} else {
+			cameratracking = 1;
+		}
+				
+		xwin =  xwin+Random(0-vc_quake_x,vc_quake_x);
+		ywin =  ywin+Random(0-vc_quake_y,vc_quake_y);
+	}
+	
+	if( _dualmode_on )
+	{
+		DoSotsHud();
+	}
+}
+
+void VCScreenFilter( int color_filter ) {
+	vc_filter_on = 1;
+	vc_filter = color_filter;
+}
+
+void VCScreenFilterOff() {
+	vc_filter_on = 0;
+}
+
+
+string _old_rstring;
+int _dualmode_on, _dualmode_counter;
+
+//EXPERIMENT
+void V1_StartDualMode( string newrstring ) {
+	_dualmode_on = 1;
+	_dualmode_counter = 0;
+	_old_rstring = curmap.rstring;
+	curmap.rstring = newrstring;
+	
+
+	//clear vclayer2 before we start!
+	RectFill(0, 0, ImageWidth(v1_vclayer2), ImageHeight(v1_vclayer2), transcolor, v1_vclayer2); //clear vclayer2
+	
+	HookRetrace("V1RPG_RenderFunc_DUALMODE");
+}
+
+void SetRString( string newRstring )
+{
+	int rCount = 0;
+	int i = 0;
+	String tok = "";
+	
+	curmap.rstring = newRstring;
+	
+	for( i=0; i<TokenCount(curmap.rstring, ","); i++ )
+	{
+		tok = GetToken( curmap.rstring, ",", i);
+		
+		if( equ(tok,"r") )
+			rCount++;
+	}
+
+	if( _dualmode_on )
+	{
+		if( rCount == 0 )
+		{
+			curmap.rstring = curmap.rstring + ",R,R";
+		}
+		else if( rCount == 1 )
+		{
+			curmap.rstring = curmap.rstring + ",R";
+		}
+		else if( rCount > 2 )
+		{
+			ErrorHandler( "SetRString(), we're in dual mode and there's > 2 R's in the rstring.  Rstring: '"+curmap.rstring+"', rCount: " + str(rCount) );
+		}
+	}
+	else
+	{
+		if( rCount == 0 )
+		{
+			curmap.rstring = curmap.rstring + ",R";
+		}
+		else if( rCount > 1 )
+		{
+			ErrorHandler( "SetRString(), we're in single mode and there's > 1 R's in the rstring.  Rstring: '"+curmap.rstring+"', rCount: " + str(rCount) );
+		}
+	}
+}
+
+void V1_StopDualMode() {
+	_dualmode_on = 0;
+	
+	curmap.rstring = _old_rstring;
+	
+	HookRetrace("V1RPG_RenderFunc");
+}
+
+
+
+void V1RPG_RenderFunc_DUALMODE() 
+{
+	if( !_dualmode_counter ) {
+		V1RPG_RenderFunc();
+		_dualmode_counter = 1;
+	} else {
+		TBlit(0, 0, v1_vclayer2, screen);
+		_dualmode_counter = 0;
+	}	
+}
+
+void V1RPG_LoadResources()
+{
+	textboxframe = LoadImage("res\system\textbox2.gif");
+	textmore = LoadImage("res\system\more.gif");
+		
+	EnableVariableWidth(textfont);
+	EnableVariableWidth(SmallFont);
+}
+
+void V1_MapSwitch(string mapn, int x, int y, int effect)
+{
+	mapswitche = effect;
+	mapswitchx = x;
+	mapswitchy = y;
+	
+	switch (effect)
+	{
+		case 1: FadeOut(30);
+		case 2: WhiteOut(30);
+		case 3: Blit(0, 0, screen, crossfade_img);
+		case 4: BoxOut(30);
+		case 5: Blit(0, 0, screen, crossfade_img);
+		case 6: CircleOut(50);
+	}
+	
+	SetWeather(WEATHER_NONE);
+	Map(mapn);
+}
+
+
+
+void VCLayerTintScreen(int color, int percent)
+{
+	tint_on = 1;
+	tint_color = color;
+	tint_lucent = percent;
+}
+
+void VCLayerTintOff()
+{
+	tint_on = 0;
+}
+
+void ClearVCLayer() 
+{
+	RectFill(0, 0, ImageWidth(v1_vclayer), ImageHeight(v1_vclayer), transcolor, v1_vclayer); //blanks the vc layer
+	
+	RectFill(0, 0, ImageWidth(v1_vclayer), 20, RGB(0,0,0), v1_vclayer); //Letterboxing!
+	RectFill(0, ImageHeight(v1_vclayer)-20, ImageWidth(v1_vclayer), ImageHeight(v1_vclayer), RGB(0,0,0), v1_vclayer); //Letterboxing!
+}
+
+void VCPutIMG( string img_name, int x_pos, int y_pos )
+{
+	int img;
+	
+	img = LoadImage( img_name );
+	TBlit( x_pos, y_pos, img, v1_vclayer );
+	FreeImage(img);
+}
+
+void FillVCLayer( int matte_color ) {
+	RectFill(0, 0, ImageWidth(v1_vclayer), ImageHeight(v1_vclayer), matte_color, v1_vclayer); //fills the vc layer with matte_color
+}
+
+void VCText( int x, int y, string s ) 
+{
+	PrintString( x,y, v1_vclayer, SmallFont, s);
+}
+
+void VCQuake( int quake_x, int quake_y ) 
+{
+	vc_quake_on = 1;
+	vc_quake_x = quake_x;
+	vc_quake_y = quake_y;
+	cameratracking = 0;
+}
+
+void VCQuakeOff() 
+{
+	vc_quake_on = 0;
+	cameratracking = 1;
+}
+
+
+
+// The v1_rpg library's map upkeep function.
+//
+// Put this function in your map's autoexec function if you want 
+//  your v1_mapswitch transitions to properly work.
+void V1_InitMap()
+{
+	// Do fade transition
+	switch (mapswitche)
+	{
+		case 1: FadeIn(30);
+		case 2: WhiteIn(30);
+		case 3: CrossFade(50);
+		case 4: BoxIn(30);
+		case 5: TransWipe(100);
+		case 6: CircleIn(50);
+	}	
+}
+
+// Warps the player to tile coordinates (x,y), using a specified fade effect.
+// The fade effects have the following valid defines:
+//   TNONE, TWHITE, TCROSS, TBOX, TWIPE, TCIRCLE
+// 
+// NOTE: References simpletype library's GetPlayer() to get the mapindex of 
+//       the player entity.  If you decide to use a different partyhandling system
+//       with this library, make sure to change those to the proper player entity index.
+void Warp(int x, int y, int effect)
+{
+	switch (effect)
+	{
+		case 1:	FadeOut(30);
+		case 2: WhiteOut(30);
+		case 3: Blit(0, 0, screen, crossfade_img);
+		case 4: BoxOut(30);
+		case 5: Blit(0, 0, screen, crossfade_img);
+		case 6: CircleOut(50);
+	}
+
+	entity.x[GetPlayer()] = x*16;
+	entity.y[GetPlayer()] = y*16;
+	Render();
+		
+	switch (effect)
+	{
+		case 1: FadeIn(30);
+		case 2: WhiteIn(30);
+		case 3: CrossFade(50);
+		case 4: BoxIn(30);
+		case 5: TransWipe(50);
+		case 6: CircleIn(50);
+	}
+}
+
+
+/*******************************************
+ *                 UI Stuff                *
+ *******************************************/
+
+// Box-drawing tool for this library.
+// Draws a box at screen coordinates (x,y) with width and height of (w,h)
+//
+// NOTE: This is presently a wrapper around the v1_Menu's MenuDrawBackground() function.
+//       if you wish to use this library without v1_Menu, alter the contents of this 
+//       function as you see fit.
+//
+void V1_Box(int x, int y, int w, int h)
+{
+	MenuDrawBackground(x, y, x+w, y+h, 1);
+}
+
+
+void V1_Box_alt( int destImg )
+{
+	MenuDrawBackgroundReal2( 0, 0, ImageWidth(destImg), ImageHeight(destImg), 1, destImg );
+}
+
+
+// Takes a one-line message and prints it in a centered MenuBox with the specified font.
+//
+// Does not do stringlength-checking, so you can make a long string draw off of the screen.
+// Does not factor in newlines or tabs, either.
+void CenterMessageBox( int font, string msg ) {
+	int wid, high;
+	
+	high = FontHeight( font );
+	wid = TextWidth( font, msg );
+	
+	V1_Box( (ImageWidth(screen)/2)-(wid/2)-high, (ImageHeight(screen)/2)-high, wid+(high*2), high*3 );
+	
+	PrintCenter(ImageWidth(screen)/2, ImageHeight(screen)/2, screen, font, msg);
+}
+
+
+int SpawnMessageBox( int font, string msg ) {
+	int wid, high;
+	
+	wid = TextWidth( font, msg );
+	high = FontHeight( font );
+	
+	int newImg = 
+		NewImage(
+			wid+(high*2),
+			high*3 
+		);
+		
+	RectFill( 0,0, ImageWidth(newImg), ImageHeight(newImg), RGB(255,0,255), newImg );
+	
+	V1_Box_alt( newImg );
+		
+	PrintCenter(
+		ImageWidth(newImg)/2, 
+		(ImageHeight(newImg)/2)-(high/2)+1, 
+		newImg, 
+		font, 
+		msg
+	);
+	
+	return newImg;
+}
+
+/*
+void V1_Box_alt( int x, int y, int w, int h, int destImg )
+{
+	MenuDrawBackgroundReal( x, y, x+w, y+h, 1, destImg );
+}
+*/
+
+
+int OpenTreasure( int flag, int x, int y, int open_tile ) {
+	if( !flags[flag] ) {
+		flags[flag] = 1;
+		SetTile(x,y,0,open_tile);
+		SoundSwitch();
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+void Banner( string msg, int duration ) {
+	
+	timer = 0;
+
+	while ( timer<duration && !b1   )
+	{
+		Render();
+		CenterMessageBox( SmallFont, msg );
+		ShowPage();
+	}
+	
+	Unpress(0);
+}
+
+//
+// Grue's Amazing simple music wrapper library!
+
+//
+// Just a little wrapper so we can have our map music
+// and switch easily between it and battle/incidental/whatever
+void V1_StartMusic( string name ) {
+	curmusic = name;
+	SetMusicVolume( global_music_volume );
+	PlayMusic(name);
+}
+
+string V1_CurrentMusicName() {
+	return curmusic;
+}
+
+int V1_GetCurVolume() {
+	return global_music_volume;
+}
+
+void V1_FadeOutMusic( int delay ) {
+	int chunk, endval, startvol;
+	
+	startvol = global_music_volume;
+	endval = 0-global_music_volume;
+	endval = endval*1000;
+	chunk = endval/delay; //chunk is now actually 1000*chunk
+
+	timer = 0;	
+	while (timer<delay)
+	{
+		Render();
+		
+		global_music_volume = startvol - abs( (chunk*timer)/1000 );
+//PrintString( 0,0,screen, SmallFont, str(timer)+","+str(delay)+": "+str(global_music_volume) );
+		SetMusicVolume( global_music_volume );
+		ShowPage();
+	}
+	
+	SetMusicVolume( 0 );
+}
+
+
+void V1_FadeInMusic( int delay, int vol ) {
+	int chunk, endval;
+	
+	endval = vol-global_music_volume;
+	endval = endval*1000;
+	chunk = endval/delay; //chunk is now actually 1000*chunk
+
+	timer = 0;	
+	while (timer<delay)
+	{
+		Render();
+		SetMusicVolume( (chunk*timer)/1000 );
+		ShowPage();
+	}
+}
+
+
+
+
+////////////
+//
+// Generic RPG functions
+//
+////////////
+
+int can_save;
+
+void SavePoint()
+{
+	can_save = 1;
+	PlaySound(sfx_save, 100);
+	WhiteIn(50);
+	Banner("Save Point", 300);
+}
+
+void SaveEnable() {
+	can_save = 1;
+}
+
+void SaveDisable() {
+	can_save = 0;
+}
+
+// Special for Sully: all clean water sources heal.
+void Heal_Well()
+{
+	PlaySound(sfx_well, 100);
+	WhiteIn(50);
+	//recover HP/MP
+	RecoverPartyHP();
+	RecoverPartyMP();
+	Banner( "Recovered full HP and MP!", 300 );
+	
+
+	UnPress(0); //all
+}
+
+
+
+void Inn() {
+	string old_music;
+	int end_song_time;
+	
+	MenuOff();
+
+	//store the original music
+	old_music = V1_CurrentMusicName();
+	StopMusic();
+
+	//play sleep music
+	//PlayMusic( "res/music/SLEEP2.IT" );
+	end_song_time = systemtime + 890;
+	PlayMusic( "res/music/WA_INN.MP3" );
+	//fadeout
+	FadeOut( 250 );
+	
+	//wait a second for effect
+	WaitOut(500, 0);
+	
+	//recover HP/MP
+	RecoverPartyHP();
+	RecoverPartyMP();
+	
+	//cure any status ailments that get removed at an inn
+	
+	
+	//play a little heal chirp
+	MenuHappyBeep();
+	
+	//cue a dialog box saying that HP/MP recovered!
+	while ( !b1 ) 
+	{
+		Render();
+		RectFill(0, 0, ImageWidth(screen), ImageHeight(screen), 0, screen);
+		CenterMessageBox( SmallFont, "Recovered full HP and MP!" );
+
+		if( systemtime > end_song_time ) {
+			StopMusic();
+		}
+
+		ShowPage();
+	}	
+	
+	//fadein
+	FadeIn(100);
+	
+	StopMusic();
+	
+	//play the original music
+	V1_StartMusic( old_music );
+	
+	MenuOn();
+}
+
+
+int _Ent_tmpvar;
+
+//
+// Call this at the beginning of an entity event!
+void EntStart() {
+	
+	MenuOff();
+	_Ent_tmpvar = entity.speed[event.entity];
+	
+	entity.speed[event.entity]=0;
+}
+
+//
+// Call this at the end of an entity event!
+void EntFinish() {
+	MenuOn();
+	entity.speed[event.entity] = _Ent_tmpvar;
+}
+
+// 1 sets Textscrolling on, 
+// 0 turns it off.
+void SetTextBoxScroll( int on )
+{
+	if( on ) {
+		global_noscroll = 0;
+	} else {
+		global_noscroll = 1;
+	}
+}
+
+//returns 1 if text scroll mode is on, 0 if it's off.
+int GetTextBoxScrollMode()
+{
+	if( global_noscroll ) return 0;
+	return 1;
+}
+
+#define MAX_AUTOTEXT_PAGES 32
+string autoTextPages[MAX_AUTOTEXT_PAGES];
+string AT_temp;
+int autoTextPageCount, atTempCount;
+
+// Takes a single string of text and does as many TextBoxM()'s and a 
+// final TextBox() as needed.
+//
+// | and/or TAB will force a newline.
+// # and/or NEWLINE will force an entirely new box.
+//
+// VERGEDev doesn't advocate the use of Autotext for 
+//
+//
+void AutoText( int sp, string master_text )
+{
+	ClearATBuffer();
+	string page_delim = "#"+chr(10);
+	
+	int i;
+	string tok;
+	
+	//for each page chunk...
+	for( i=0; i<TokenCount(master_text,page_delim); i++ ) {
+		
+		tok = GetToken( master_text,page_delim,i );
+		
+		HandlePageChunk(tok);
+	}
+	
+	for( i=0; i<autoTextPageCount; i++ ) {
+		
+		if( i==(autoTextPageCount-1) ) {
+			TextBoxDirect(sp, 0, autoTextPages[i]);
+		} else {
+			TextBoxDirect(sp, 1, autoTextPages[i]);
+		}
+		
+	}
+	
+	//DiagnoseAT();
+}
+
+// Helper Function.  Handles pageChunks.
+//
+void HandlePageChunk( string text ) {
+	string line_delim = "|"+chr(9);
+	
+	int i,j;
+	string tok;
+	
+	for( i=0; i<TokenCount(text,line_delim); i++ ) {
+		
+		tok = GetToken( text,line_delim,i );
+		
+		HandleLineChunk( tok );
+		
+		if( atTempCount == TEXTBOX_LINES ) {
+			SaveATPage();
+		}
+	}	
+	
+	if( !equ(AT_temp,"") ) {
+	
+		SaveATPage();
+	}
+}
+
+//helper function.  Handles lineChunks
+void HandleLineChunk( string text ) {
+
+//log( "temp linecount going in: " + str(atTempCount) );
+//log( "HANDLE LINE CHUNK >>>"+text+"<<<" );
+	
+	string my_line, temp, tok;
+	int i;
+	
+	for( i=0; i<TokenCount(text," "); i++ ) {
+		
+		tok = GetToken(text," ",i);
+//log( "HLC("+ str(i)+"): " + AT_temp + ":::" + str(atTempCount) + ":::" + temp );
+		if( TextWidth(textBox_font,temp+tok+" ") > TEXTBOX_TEXTAREA_WIDTH ) {
+//log( ">>>>>>>>>> TOO BIG!  SAVING!" );
+			
+			AT_temp = AT_temp + temp + "|";
+			atTempCount++;
+			temp = tok + " ";
+		} else {
+			temp = temp + tok + " ";
+			
+//log( ">>> temp is now: "+temp );
+		}
+		
+		if( atTempCount == TEXTBOX_LINES ) {
+			SaveATPage();
+		}
+	}
+	
+	AT_temp = AT_temp + temp + "|";
+	atTempCount++;
+	
+//log( "temp linecount going out: " + str(atTempCount) );
+}
+
+// Adds a page to the AT array.  clears 
+//
+void SaveATPage() {
+	
+//log("");
+//log("SaveATPage");
+//log("");
+
+	
+	string line_delim = "|"+chr(9);
+	
+	while( TokenCount(AT_temp,line_delim) < TEXTBOX_LINES ) {
+		AT_temp = AT_temp + "|_";
+	}
+	
+	autoTextPages[autoTextPageCount] = AT_temp;
+//log( "saved["+str(autoTextPageCount)+"]: " + autoTextPages[autoTextPageCount] );
+	
+	autoTextPageCount++;
+	
+	AT_temp = "";
+	atTempCount = 0;
+}
+
+// Helper Function.  Clears all the globals used by the AutoText() function. 
+//
+void ClearATBuffer() {
+	int i;
+	
+	for( i=0; i<MAX_AUTOTEXT_PAGES; i++ ) {
+		autoTextPages[i] = "";
+	}
+	
+	AT_temp = "";
+	autoTextPageCount = 0;
+	atTempCount = 0;
+}
+
+void DiagnoseAT() {
+	
+	log( "=============" );
+	log( "DiagnoseAT()" );
+	log( "=============" );
+	log( "autoTextPageCount: " + str(autoTextPageCount) );
+	
+	int i;
+	for( i=0; i<autoTextPageCount; i++ ) {
+		log( str(i) + ": '"+ autoTextPages[i] +"'" );
+	}
+
+	log( "=============" );	
+}
+
+void TextBox(int sp, string s1, string s2, string s3)
+{
+	TextBoxDirect(sp, 0, s1 + "|" + s2 + "|" + s3);
+}
+
+void TextBoxM(int sp, string s1, string s2, string s3)
+{
+	TextBoxDirect(sp, 1, s1 + "|" + s2 + "|" + s3);
+}
+
+void TextBoxDirect(int sp, int m, string s)
+{
+	int line_it, line_num, time_last;
+	
+	int font_h = FontHeight(textBox_font) + TEXTBOX_Y_BUFF;
+	
+	if (global_noscroll)
+	{
+		line_num = TEXTBOX_LINES-1;
+		time_last = 0;
+	}
+	else
+	{
+		line_num = 0;
+		time_last = systemtime;
+	}
+	
+	while (line_num < TEXTBOX_LINES)
+	{
+		MenuBackGroundDraw(); // Draw universal things
+		
+		//draw the textbox bg.
+		V1_Box( TEXTBOX_BORDER_X1,TEXTBOX_BORDER_Y1,  TEXTBOX_BORDER_WIDTH,TEXTBOX_BORDER_HIGH );
+		
+		SetClip( 	TEXTBOX_TEXTAREA_X,TEXTBOX_TEXTAREA_Y, 
+					TEXTBOX_TEXTAREA_X+TEXTBOX_TEXTAREA_WIDTH,TEXTBOX_TEXTAREA_Y+TEXTBOX_TEXTAREA_HIGH, screen );
+					
+		for (line_it = 0; line_it < line_num; line_it++)
+		{ 
+			PrintString(TEXTBOX_TEXTAREA_X,TEXTBOX_TEXTAREA_Y + (font_h * line_it), screen, textBox_font, GetToken(s, "|", line_it)); 
+		}
+				
+		PrintString(TEXTBOX_TEXTAREA_X,TEXTBOX_TEXTAREA_Y + (font_h * line_num), screen, textBox_font, left(GetToken(s, "|", line_num), (systemtime - time_last) / 2));
+		
+		SetClip(0, 0, ImageWidth(screen), ImageHeight(screen), screen);
+		
+		if (MenuConfirm()) { line_num++; time_last = systemtime; }
+		else if ((systemtime - time_last) / 2 >= len(GetToken(s, "|", line_num)))
+		{
+			if (line_num < (TEXTBOX_LINES-1)) { line_num++; time_last = systemtime; }
+			else if (m == 1) TBlit(TEXTMORE_X,TEXTMORE_Y + (cos(systemtime * 2) * 4 / 65536), textmore, screen);
+			else if (m == 2 && global_noscroll) line_num++;
+		}
+		
+		DrawSpeechPortrait( sp );
+		
+		ShowPage();	
+	}
+	if (m == 1)
+	{
+		time_last = systemtime;
+		while ((systemtime - time_last) < 30)
+		{
+			MenuBackGroundDraw(); // Draw universal things
+
+			DrawSpeechPortrait( sp );
+			
+			//draw the textbox bg.
+			V1_Box( TEXTBOX_BORDER_X1,TEXTBOX_BORDER_Y1,  TEXTBOX_BORDER_WIDTH,TEXTBOX_BORDER_HIGH );
+			
+			SetClip( 	TEXTBOX_TEXTAREA_X,TEXTBOX_TEXTAREA_Y, 
+						TEXTBOX_TEXTAREA_X+TEXTBOX_TEXTAREA_WIDTH,TEXTBOX_TEXTAREA_Y+TEXTBOX_TEXTAREA_HIGH, screen );
+			
+			for (line_it = 0; line_it < line_num; line_it++)
+				{ PrintString(TEXTBOX_TEXTAREA_X,TEXTBOX_TEXTAREA_Y + (font_h * line_it) - ((systemtime - time_last) * 2), screen, textBox_font, GetToken(s, "|", line_it)); }
+			
+			SetClip(0,0, ImageWidth(screen), ImageHeight(screen), screen);
+			
+			DrawSpeechPortrait( sp );
+			
+			ShowPage();
+		}
+	}
+}
+
+int Prompt(int sp, string s1, string s2, string s3, string choices)
+{
+	return PromptDirect(sp, s1 + "|" + s2 + "|" + s3, choices);
+}
+
+int PromptWrap(int sp, string question, string choices)
+{
+	return PromptDirect(sp, _WrapText(textBox_font, question, 309), choices);
+}
+
+// My god, what have I done?!
+int PromptDirect(int sp, string question, string choices)
+{
+	int i;
+	int font_h = FontHeight(promptBox_font) + PROMPT_Y_BUFF;
+	int tex_font_h = FontHeight(textBox_font) + TEXTBOX_Y_BUFF;
+	int prompt_wid, prompt_high;
+	int prompt_x1, prompt_x2;
+	
+	int ptr_w = TextWidth(promptBox_font, "> ");
+	
+	int count = TokenCount(choices, "|");
+	if (count > MAX_PROMPT_OPTIONS) ErrorHandler("Moar than "+str(MAX_PROMPT_OPTIONS)+" options passed to the choicebox. This may cause graphical oddness");
+
+	int prompt_y1;
+	
+	if( PROMPT_BOTM_Y ) {
+		
+		prompt_y1 = PROMPT_BOTM_Y - (font_h * count) - (PROMPT_PADDING*2);
+		
+		prompt_high = PROMPT_BOTM_Y - prompt_y1;
+		
+	} else {
+		prompt_y1 = PROMPT_Y;
+		
+		prompt_high = (PROMPT_PADDING*2)+TEXTBOX_Y_BUFF+(count * font_h);
+	}
+	
+	if( PROMPT_WIDTH ) {
+		prompt_wid = PROMPT_WIDTH;
+	} else { //dynamic width!
+		prompt_wid = _LongestWidth(choices) + (PROMPT_PADDING*2) + (font_h*2);
+	}
+	
+	//if the promptbox would've gone off the screen... make it align with the textbox
+	if( (PROMPT_X+prompt_wid) > ImageWidth(screen) ) {
+		prompt_x2 = TEXTBOX_BORDER_WIDTH+TEXTBOX_BORDER_X1;
+		prompt_x1 = prompt_x2 - prompt_wid;
+	} else {
+		prompt_x2 = PROMPT_X+prompt_wid;
+		prompt_x1 = PROMPT_X;
+	}
+		
+	menu_item = 0;
+	
+	TextBoxDirect(sp, 2, question);
+
+	while(!MenuConfirm())
+	{
+		MenuBackGroundDraw(); // Draw universal things
+
+		//draw the textbox bg.
+		V1_Box( TEXTBOX_BORDER_X1,TEXTBOX_BORDER_Y1,  TEXTBOX_BORDER_WIDTH,TEXTBOX_BORDER_HIGH );
+		
+		//set clipping so we cannot draw outside the textbox
+		SetClip( 	TEXTBOX_TEXTAREA_X,TEXTBOX_TEXTAREA_Y, 
+					TEXTBOX_TEXTAREA_X+TEXTBOX_TEXTAREA_WIDTH,TEXTBOX_TEXTAREA_Y+TEXTBOX_TEXTAREA_HIGH, screen );
+		//print out the textbox lines.
+		for (i = 0; i < TEXTBOX_LINES; i++)
+		{
+			PrintString(TEXTBOX_TEXTAREA_X,TEXTBOX_TEXTAREA_Y + (tex_font_h * i), screen, textBox_font, GetToken(question, "|", i)); 
+		}
+
+		//restore clipping
+		SetClip(0,0, ImageWidth(screen), ImageHeight(screen), screen);
+
+		menu_item = MenuControlArrows(menu_item, count);
+
+		V1_Box( prompt_x1, prompt_y1-TEXTBOX_Y_BUFF, prompt_wid, prompt_high );
+
+		//set the clipping rectangle so we cannot draw outside the promptbox's area!
+		SetClip( 	prompt_x1+PROMPT_PADDING, prompt_y1+PROMPT_PADDING, 
+					prompt_x2-PROMPT_PADDING,prompt_y1+prompt_high-PROMPT_PADDING, screen );
+
+		//print out the options.
+		for(i = 0; i <= count; i++)	
+		{
+			PrintString(prompt_x1+PROMPT_PADDING+ptr_w+TEXTBOX_Y_BUFF, prompt_y1+PROMPT_PADDING+((i) * font_h), screen, promptBox_font, GetToken(choices, "|", i));
+		}
+		
+		//print the pointer...
+		PrintString(prompt_x1+PROMPT_PADDING+TEXTBOX_Y_BUFF, prompt_y1+PROMPT_PADDING+((menu_item) * font_h), screen, promptBox_font, ">");
+		
+		//restore the clipping rectangle.
+		SetClip(0,0, ImageWidth(screen), ImageHeight(screen), screen);
+		
+		
+		DrawSpeechPortrait( sp );
+		
+		ShowPage();
+	}
+	
+	return menu_item;
+}
+
+int _LongestWidth( string choices ) {
+	int i, longest, temp;
+	
+	for( i=0; i<TokenCount(choices,"|"); i++ ) {
+		temp = TextWidth(promptBox_font, GetToken(choices, "|", i) );
+		
+		if( temp > longest ) longest = temp;
+	}
+	
+	return longest;
+}
+
+
+// A wrapper around the Speech-portrait draing mechanism, 
+// for easy changing!
+void DrawSpeechPortrait( int sp ) {
+	TBlit(SPEECH_X, SPEECH_Y, sp, screen);
+	TBlit(SPEECH_X, SPEECH_Y, T_FRAME, screen);
+}
+
+void SetTextBoxFont( int font_handle ) {
+	textBox_font = font_handle;
+}
+
+int GetTextBoxFont() {
+	return textBox_font;
+}
+
+
+// Just a little anachronism.
+void AlterBTile(int x, int y, int t, int obs) {
+	SetTile(x,y,0,t);
+	
+	if( !obs || obs == 1  ) 
+		SetObs(x,y,obs);
+}
+
+// Just a little anachronism.
+void AlterFTile(int x, int y, int t, int obs) {
+	SetTile(x,y,1,t);
+	
+	if( !obs || obs == 1  ) 
+		SetObs(x,y,obs);
+}

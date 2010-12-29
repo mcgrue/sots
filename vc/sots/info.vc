@@ -1,0 +1,55 @@
+// This handles the data behind all indexable sources
+//
+
+struct info {
+	
+
+	string topic;	//the topic of the data, can have a subtopic after the comma.
+	string info;	//the actual info entry.
+	
+	string	source;		//who told you this?
+	int		src_idx;	//the index of the source if it has one.  -1 if not.
+	
+	int		is_known;	//Is this information exposed to the player yet?
+}
+
+#define MAX_INFO 500
+info master_info[MAX_INFO];
+int master_info_count;
+
+
+int AddInfo( string _topic, string _data, string _src, int _src_idx ) {
+	
+
+	int i = master_info_count;
+	
+	if( i >= MAX_INFO ) {
+		ErrorHandler("Info.vc::AddInfo(): you have exceeded your MAX_INFO limit of " + str(MAX_INFO)+".");
+		return 0-1;
+	}
+	
+	master_info[i].topic	= _topic;
+	master_info[i].info		= _data;
+	master_info[i].source	= _src;
+	master_info[i].src_idx	= _src_idx;
+	
+	master_info_count++;
+	
+	return i;
+}
+
+int IsInfoKnown( int info_idx ) {
+	return master_info[info_idx].is_known;
+}
+
+// Returns FALSE if the info was already known, 
+// returns TRUE if this info was just being learned for the first time.
+int SetInfoKnown( int info_idx ) {
+	
+	if( master_info[info_idx].is_known ) 
+		return FALSE;
+	
+	master_info[info_idx].is_known = TRUE;
+	return TRUE;
+}
+

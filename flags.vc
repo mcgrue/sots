@@ -1,0 +1,51 @@
+// To make our gameplay flags more readable
+// we'll define them!
+//
+// the flags[] array (defined right below on line ##) is a vital part of your
+// gamemaking experience.  It basically is a universal stack of data that gets 
+// loaded and saved in savegames... if you do anything in your game that you 
+// want to remember, you make a flag for it.
+//
+// It's an array, so if you don't know what that is, go look it up in the docs 
+// or the tutorial.
+//
+// We #define human-readable names to the array indexes so your code is a lot 
+// more readable.  Seeing:
+//
+// if( flags[F_CARROT_QUEST] == 1 )
+//
+// makes a lot more sense than:
+//
+// if( flags[95] == 1 )
+//
+// as a space-saving effort, we'll prepend flag-defines
+// with F_ instead of FLAG_
+//
+// you can do your flag-defines however you want.  Or use the raw indexes.
+// or you don't need to use flags at all!  We aren't gonna force ya... but they 
+// sure are handy! ;)
+//
+// Treasure-flags will be special, starting with CHEST_ and 
+// being in a group of flags[] indexes past everything else, 
+// just in case we want to do tricky/leet stuff with them 
+// at a later time.
+//
+// -Grue, (2004.09.07 - 2004.10.01)
+
+#define MAX_FLAGS		1100
+#define MAX_COLLECT		100
+
+
+int flags[MAX_FLAGS]; //the actual flags array!
+
+int collections[MAX_COLLECT];
+
+#define COLLECT_BOOKS_READ	0	//how many books have you read, sir?
+
+//
+// Flag definitions below
+
+#define F_ALDEN_DRESSER_COUNT			0	//how many times have the dressers been talked to?
+
+
+#define F_SOTS_INTRO					100	//lalala

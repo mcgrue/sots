@@ -1,0 +1,6 @@
+<xml>
+  <character name="Blue Star" source="bs.gif" tcol="255,255,255">
+    <view name="default" type="row" pad="1,1,1,1" dims="32,32"/>
+    <anim name="rock" addr="1" str="F0W75F1W33F2W75F1W33" />
+  </character>
+</xml>

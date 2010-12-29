@@ -1,0 +1,58 @@
+//
+// Grue's Icon library, mark I.
+//
+// -I'd like to add multiple icon sourcefiles, variable sized icons, and other neat things 
+// in the future, but in all honesty I'll probably only finish the basic library.
+//
+// To the intrested, feel free to flesh this out into something more useful, and many cookies
+// shall be yours.
+//
+// Use:
+//  Requires x_from_flat() and y_from_flat().  If you  don't have these around, uncomment 
+//  them from the top of this file.
+//
+
+/*
+*/
+int x_from_flat( int flatval, int yMax ) {
+	return flatval%yMax;
+}
+
+int y_from_flat( int flatval, int yMax ) {
+	flatval = flatval - x_from_flat( flatval,yMax );
+	return flatval/yMax;
+}
+
+//*/
+
+#define ICON_WIDTH	16
+#define ICON_HEIGHT	16
+
+int im_iconsource;
+int _icon_rows, _icon_cols, _icon_max;
+
+// returns the number of icons that live inside the given source image.
+int icon_max( int src_img ) {
+	return (ImageWidth(src_img)/(ICON_WIDTH+1))*(ImageHeight(src_img)/(ICON_HEIGHT+1));
+}
+
+void icon_init( string src_file ) {
+	int i;
+	im_iconsource = LoadImage( src_file );
+	
+	_icon_cols	= ImageWidth(im_iconsource)/(ICON_WIDTH+1);
+	_icon_rows	= ImageHeight(im_iconsource)/(ICON_HEIGHT+1);
+	_icon_max	= _icon_rows * _icon_cols;
+}
+
+int icon_get( int idx ) {
+	int x, y;
+	
+	x = x_from_flat( idx, _icon_cols );
+	y = y_from_flat( idx, _icon_cols );
+	
+	x = (x*(ICON_WIDTH+1)) +1;
+	y = (y*(ICON_HEIGHT+1)) +1;
+		
+	return ImageShell( x, y,  ICON_WIDTH,ICON_HEIGHT, im_iconsource );
+}

@@ -1,0 +1,28 @@
+// menu_skill.vc for Sully www.verge-rpg.com
+// Zip 05/09/2004
+
+//        ---------------
+//       Skill Menu
+//        ---------------
+
+void MenuControlSkill()
+{
+	MenuControlTwoArrows("menu_item", 1, "menu_cast", PartySize());
+	if (MenuConfirm())
+	{
+		MenuRoot();
+	}
+	if (MenuCancel())
+	{
+		MenuRoot();
+	}
+}
+
+void MenuDrawSkill()
+{
+	MenuBlitRight(0, menu_option);
+	MenuDrawBackground(MENU_A_X1, MENU_A_Y1, MENU_A_X2, MENU_A_Y2, 1);
+	PrintString(80, 15, screen, menu_font[0], "Skill");
+	MenuBlitCast(menu_cast, 0, 0);
+	PrintString(25, 120, screen, menu_font[0], "Skill Type: "+master_skilltypes[master_classes[master_cast[party[menu_cast]].class_ref].skill_groups[0]].name);
+}

@@ -1,0 +1,302 @@
+///
+/// This library handles the 
+///
+
+// externally defined:
+//
+//	//this the the first "vc layer".  It's what goes on the first "R" in the rstring.
+//	int v1_vclayer = DuplicateImage(screen);
+//
+//	//this the the second "vc layer".  It's what goes on the second "R" in the rstring.  This is the magical R.
+//	int v1_vclayer2 = DuplicateImage(screen);
+//
+
+/// this is an image of the previous 
+int v1_vclayer2_previous = DuplicateImage( screen );
+
+int _hudW = ImageWidth( v1_vclayer2 );
+int _hudH = ImageHeight( v1_vclayer2 );
+int _trans = RGB(255,0,255);
+
+int _hudOn = 0;
+int _hudDungeonMode = 0;
+
+void SotsHudToggle( int onOrOff )
+{
+	if( _hudOn && !onOrOff )	/// if we're turning off...
+		TearDownHud();			/// ...bring it down... bring it ALLL DOWN.
+		
+	if( !_hudOn && onOrOff )	/// if we're turning it on...
+		BuildUpHud();			/// empower it like A MODERN WOMAN.
+
+	_hudOn = onOrOff;
+}
+
+void SotsHudDungeonMode( int i )
+{
+	_hudDungeonMode = i;
+}
+
+//
+// This is what actually renders to v1_vclayer2
+void DoSotsHud()
+{
+	if( !_hudOn ) return;
+
+	/// out with the old, in with the new.
+	///
+	/// Since we're about to mung up v1_vclayer2, it's best to 
+	FreeImage( v1_vclayer2_previous );
+	v1_vclayer2_previous = DuplicateImage( v1_vclayer2 );
+	
+	mcg_process_sprites();	//autocycle any sprites on the heap.
+	mcgrender();			//render the heap.		
+}
+
+int lastMouseX, lastMouseY, lastMouseMove;
+
+void renderSotsHudMouse()
+{
+	/// if the mouse moves or if we're Thy Dungeonman, we want the HUD up.
+	if( mouse.x != lastMouseX || mouse.y != lastMouseY || _hudDungeonMode )
+	{
+		lastMouseMove = systemtime;
+	}
+	
+	lastMouseX = mouse.x;
+	lastMouseY = mouse.y;
+
+	TBlit( mouse.x, mouse.y, _imHudMousey, getMcgRenderTarget() );
+	
+	if( mouse.l )
+	{
+		_excellent = 1;	
+		mcg_doclick();	
+		mouse.l = 0;
+	}
+}
+
+int __HudAlertBanner_in_action = 0;
+int _imHudAlertBanner = 0;
+
+int __timeBannerMovedIn = 0;
+
+void renderSotsHudAlertBanner()
+{
+	if( __HudAlertBanner_in_action )
+	{
+		/// override the fade while there's a banner moving.
+		lastMouseMove = systemtime;
+	
+		if( mcg_isMoving(_ref_hud_letterbox_top) )
+		{
+			return;
+		}
+		
+		if( __HudAlertBanner_in_action == 1 ) //initialize slidein
+		{
+			
+			mcg_newmove( _ref_blank, ImageWidth(_imHudMeter)+10, 2, 50 );
+		
+			__HudAlertBanner_in_action = 2;
+		}
+		else if( __HudAlertBanner_in_action = 2 ) //wait until the slidein is done...
+		{
+			if( !mcg_isMoving(_ref_blank)  )
+			{
+				__HudAlertBanner_in_action = 3;
+				__timeBannerMovedIn = systemtime;
+			}
+
+		}
+		else if( __HudAlertBanner_in_action = 3 ) ///wait until appointed time, or until enter was hit...
+		{
+			if( ((systemtime-__timeBannerMovedIn) >= 200) || key[SCAN_ENTER] )
+			{
+				mcg_newmove( _ref_blank, ImageWidth(screen), 2, 50 );
+				__HudAlertBanner_in_action = 4;
+			}			
+		}
+		else if( __HudAlertBanner_in_action == 4 ) //wait until the slideout is done...
+		{
+			if( !mcg_isMoving(_ref_blank)  )
+			{
+				__HudAlertBanner_in_action = 5;
+			}
+		}
+		else if( __HudAlertBanner_in_action == 5 ) //we're done.  Let's close up shop.
+		{
+			__HudAlertBanner_in_action = 0;
+		}
+		
+		/// let's just render the banner to start.
+		
+		TBlit( 
+			mcg_getX(_ref_blank), 
+			mcg_getY(_ref_blank), 
+			_imHudAlertBanner, 
+			getMcgRenderTarget() 
+		);
+	}
+}
+
+void renderSotsHudMeter()
+{
+	TBlit( 
+		mcg_getX( _ref_hud_letterbox_top ), 
+		mcg_getY( _ref_hud_letterbox_top ), 
+		_imHudMeter, 
+		getMcgRenderTarget() 
+	);
+}
+
+void renderSotsHudToolbox()
+{
+
+}
+
+void renderSotsHudPartyLeader()
+{
+	PrintString(
+		mcg_getX( _ref_hud_letterbox_bottom )+4, 
+		mcg_getY( _ref_hud_letterbox_bottom )+6, 
+		getMcgRenderTarget(),
+		textfont,
+		
+		"("+str(entity.x[playerent]/16)+","+str(entity.y[playerent]/16)+")"
+		
+		//"Onam"
+		//curmap.rstring
+	);
+}
+
+void renderSotsHudMoney()
+{
+
+	PrintRight(
+		316 //ImageWidth( _ref_hud_letterbox_bottom )-4, 
+		mcg_getY( _ref_hud_letterbox_bottom )+6, 
+		getMcgRenderTarget(),
+		textfont,		
+		str(money)+" "+moneyname
+	);
+
+}
+
+int fadeLucent = 0;
+
+void renderSotsHudFadeBottom()
+{
+	if( (systemtime-lastMouseMove) > 300 )
+	{	
+		fadeLucent = (((systemtime-lastMouseMove)-300)/2);
+		
+		if( fadeLucent > 100 )
+			fadeLucent = 100;
+	}
+	else
+	{
+		fadeLucent = 0;
+	}
+	
+	SetLucent(fadeLucent);
+}
+
+void renderSotsHudFadeTop()
+{	
+	SetLucent( 0 ); //back to normal.
+}
+
+int _hudLetterbox = 0;
+int _imHudMousey = 0;
+int _imHudMeter = 0;
+
+int _layer0_letterbox;
+int _layer1_tools;
+int _layer2_mouse;
+
+int _ref_hud_letterbox_top;
+int _ref_hud_letterbox_bottom;
+
+int _im_blank;
+int _ref_blank;
+
+
+/// alllocate and build things the HUD needs!
+void BuildUpHud()
+{
+	InitMcgrender();
+
+	_layer0_letterbox	= McgSpawnLayer(); 
+	_layer1_tools		= McgSpawnLayer(); 
+	_layer2_mouse		= McgSpawnLayer(); 
+	
+	_hudLetterbox = NewImage( ImageWidth(screen), 20 );
+	
+	//RectFill( 0,0, ImageWidth(_hudLetterbox), ImageHeight(_hudLetterbox), RGB(36,26,16), _hudLetterbox );
+	RectFill( 0,0, ImageWidth(_hudLetterbox), ImageHeight(_hudLetterbox), RGB(0,0,0), _hudLetterbox );
+	
+	_imHudMousey = LoadImage( "res\_test\mousey.gif" );
+	_imHudMeter = LoadImage( "res\_test\hud-meter2.pcx" );
+	_im_blank = NewImage(0,0);
+
+	McgSetActiveLayer( _layer0_letterbox );
+	
+	mcg_add_complex( "renderSotsHudFadeBottom", -1 );
+
+	_ref_hud_letterbox_top =	mcg_add_image( 0,-ImageHeight(_hudLetterbox), 0,0, 100, _hudLetterbox );
+	_ref_hud_letterbox_bottom =	mcg_add_image( 0,ImageHeight(screen), 0,ImageHeight(screen)-ImageHeight(_hudLetterbox), 100, _hudLetterbox );
+	
+	/// this guy exists to capitalize on the timed slidey of mcgrender for the hud imagebox.
+	_ref_blank = mcg_add_image( ImageWidth(screen),2, ImageWidth(screen),2, 1, _im_blank );
+	
+	mcg_add_complex( "renderSotsHudAlertBanner", -1 );
+	mcg_add_complex( "renderSotsHudMeter", -1 );
+	mcg_add_complex( "renderSotsHudToolbox", -1 );
+	mcg_add_complex( "renderSotsHudPartyLeader", -1 );
+	mcg_add_complex( "renderSotsHudMoney", -1 );
+	
+	mcg_add_complex( "renderSotsHudFadeTop", -1 );	
+	
+//	McgSetActiveLayer( _layer1 );
+
+//	mcg_add_sprite( 224,80,	224,80, 0, sprOnam );
+//	mcgHandle_slime = mcg_add_sprite( 58,74, 58,74, 0, sprSlime );
+	
+//	mcg_clickable( int mcg_idx, string callfunc, string assocdata, int associdx )
+//	mcg_clickable( mcgHandle_slime, "killSlime", "", 0 );
+	
+	McgSetActiveLayer( _layer2_mouse );
+	mcg_add_complex( "renderSotsHudMouse", -1 );
+}
+
+/// free things that should be freed.  Like willy.
+void TearDownHud()
+{
+	FreeImage( _imHudMousey );
+	FreeImage( _hudLetterbox );
+	FreeImage( _imHudMeter );
+	FreeImage( _im_blank );
+}
+
+
+//SotsHudBanner( "Castle Alden" );
+void SotsHudBanner( String hudBanner )
+{
+	if( __HudAlertBanner_in_action )
+	{
+		return; //exit( "lol, no. (need to impl HUD banner queue...)" );
+	}
+	else
+	{
+		if( ImageValid(_imHudAlertBanner) )	
+		{
+			FreeImage(_imHudAlertBanner);
+		}
+		
+		_imHudAlertBanner = SpawnMessageBox( SmallFont, hudBanner );
+		__HudAlertBanner_in_action = 1;
+	}
+//int __HudAlertBanner_in_action = 0;
+//int _imHudAlertBanner = 0;	
+}

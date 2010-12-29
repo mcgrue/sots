@@ -1,0 +1,82 @@
+void start() 
+{
+	///dualmode for the HUD.
+	V1_StartDualMode( curmap.rstring+",R" );
+
+	InitMap();
+	
+	SotsHudToggle(1);
+	
+	V1_StartMusic( "res/music/mountain2.xm" );
+	SetMusicVolume( 15 );
+	
+	SotsHudBanner( "Ontaran Mountains" );
+}
+
+void event_1() //1
+{
+	SetRString("1,6,2,E");
+}
+
+void event_2() //2
+{
+	SetRString("1,6,3,E");
+}
+
+void event_3() //3
+{
+}
+
+void event_4() //4
+{
+	SetRString("1,6,2,3,E");
+}
+
+void event_5() //5
+{
+	SetRString("1,6,3,4,E");
+}
+
+void event_6() //6
+{
+	SetRString("1,6,3,4,E");
+}
+
+void event_7() //7
+{
+	SetRString("1,6,4,5,E");
+}
+
+void event_8() //8
+{
+	SetRString("1,6,2,5,E");
+}
+
+void event_9() //9
+{
+	SetRString("1,6,4,5,E");
+}
+
+void event_10() //10
+{
+	SetRString("1,6,3,4,E");
+}
+
+void event_11() //11
+{
+	SetRString("1,6,2,E");
+}
+
+void event_12() //12
+{
+}
+
+void event_13() //13
+{
+	SetRString("1,6,3,E");
+}
+
+void event_14() //14
+{
+	SetRString("1,6,4,E");
+}

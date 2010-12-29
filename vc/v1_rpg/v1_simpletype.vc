@@ -1,0 +1,80 @@
+// These are functions that are hybrids between the v1-rpg library and the 
+// Simpletype Systems library.
+//
+// Basically, the graphical-drawing-ness/message-displayery is in the v1_rpg lib, and 
+//  all of the stuff actually being altered (money/items/etc) is in the simpletype lib.
+//////////////////////////////////
+
+
+// Removes an amount of money from the party's coffers.
+// 
+// lets you remove more than you have, resulting in a negative amount.
+//  so check before you do it!
+void TakeMoney(int amount)
+{
+	Banner( "Lost "+str(amount)+" "+moneyname+"!", 300 );
+	
+	money -= amount;
+}
+
+// Adds an amount of money to the party's coffers.
+//
+void FindMoney(int amt) {
+	GiveMoney(amt);
+}
+
+// Adds an amount of money to the party's coffers.
+void GiveMoney(int amount)
+{
+	Banner( "Got "+str(amount)+" "+moneyname+"!", 300 );
+	
+	money += amount;
+}
+
+// Takes an itemname and a quantity and give it to the party with a pretty banner 
+// with the item name, quatity and icon
+//
+// Does all errorchecking as SimpleType's GiveItem()... cuz it calls that at the top. ;)
+void FindItem( string itemname, int quantity )
+{
+	int idx;
+	string msgstr;
+	
+	GiveItem( itemname, quantity );
+	
+	idx=IsItem(itemname);
+	
+	msgstr = "Procured "+master_items[idx].name;
+	
+	if( quantity > 1 ) {
+		msgstr = msgstr + " x"+str(quantity)+"!";
+	} else {
+		msgstr = msgstr + "!";
+	}
+	
+	int wid, high;
+	int icon;
+	
+	icon = icon_get( master_items[idx].icon );
+	
+	high = FontHeight( SmallFont );
+	wid = TextWidth( SmallFont, msgstr );
+	
+	timer = 0;
+	while( timer<300 && !b1 )
+	{
+		Render();
+	
+		V1_Box( (ImageWidth(screen)/2)-(wid/2)-high, ((ImageHeight(screen)/2)-high)-16, wid+(high*2), high*3+32 );
+
+		PrintCenter(ImageWidth(screen)/2, (ImageHeight(screen)/2)-16, screen, SmallFont, msgstr);
+
+		TBlit( (ImageWidth(screen)/2)-8, (ImageHeight(screen)/2)+8, icon, screen );
+		
+		ShowPage();
+	}
+
+	Unpress(0);
+	
+	FreeImage( icon );
+}

@@ -1,0 +1,204 @@
+
+int _test_render_done = 0;
+
+void _test_renderguy()
+{
+	buildUpTest();
+
+	_test_render_done = 0;
+
+	while( !_test_render_done )
+	{
+		Render();
+		RenderTestRender();
+		ShowPage();
+	}
+	
+	tearDownTest();
+}
+
+int _layer0, _layer1, _layer2, _layerTopEffects, _layerMouse;
+
+void RenderTestRender()
+{
+	mcg_process_sprites();	//autocycle any sprites on the heap.
+	mcgrender();		//render the heap.	
+}
+
+int imBackground, imBackgroundOverlay;
+int imNumImageHandles;
+int imMousey;
+int imX;
+
+int sprOnam, sprSlime;
+
+int mcgHandle_slime, mcgHandle_bouncey, mcgHandle_bouncey_x;
+int bouncey_x_mode;
+
+void buildUpTest()
+{
+	InitMcgrender();
+
+	_layer0 = McgSpawnLayer(); 
+	_layer1 = McgSpawnLayer(); 
+	_layer2 = McgSpawnLayer(); 
+	_layerTopEffects = McgSpawnLayer(); 
+	_layerMouse = McgSpawnLayer(); 
+	
+	
+	imBackground = LoadImage( "res\_test\battle_temp2.gif" );
+	imBackgroundOverlay = LoadImage( "res\_test\battle_layout.gif" );
+	imMousey = LoadImage( "res\_test\mousey.gif" );
+	imX = LoadImage( "res\_test\x.gif" );
+	
+	sprOnam =	LoadSprite( "test_onam.spr",	0 );
+	sprSlime =	LoadSprite( "red_slime.spr",	0 );
+	imNumImageHandles = NewImage( 100, 40 );
+	RectFill( 0,0, 200, 40, RGB(255,0,255), imNumImageHandles );
+	
+	McgSetActiveLayer( _layer0 );
+
+	mcg_add_image( 0,0, 0,0, 100, imBackground );
+	mcg_add_complex( "translucent_grid", -1 );
+	
+	McgSetActiveLayer( _layer1 );
+	
+	mcg_add_sprite( 224,80,	224,80, 0, sprOnam );
+	mcgHandle_slime = mcg_add_sprite( 58,74, 58,74, 0, sprSlime );
+	
+	//mcg_clickable( int mcg_idx, string callfunc, string assocdata, int associdx )
+	mcg_clickable( mcgHandle_slime, "killSlime", "", 0 );
+	
+	McgSetActiveLayer( _layer2 );
+	
+	
+	
+	mcg_add_complex( "updateImgHandles", -1 );
+	
+	mcgHandle_bouncey = mcg_add_image( 0,189, 220, 189, 500, imNumImageHandles );
+	mcg_setOnStopMoving( mcgHandle_bouncey, "rebounceBouncer" );
+	
+	
+	McgSetActiveLayer( _layerMouse );
+	mcg_add_complex( "renderTestMouse", -1 );
+	
+	McgSetActiveLayer( _layerTopEffects );
+	
+	mcgHandle_bouncey_x = mcg_add_image( 1,1, 320-22, 0, 500, imX );
+	mcg_setOnStopMoving( mcgHandle_bouncey_x, "rebounceX" );
+	mcg_clickable( mcgHandle_bouncey_x, "endRendTest", "", 0 );
+	bouncey_x_mode = 0;
+}
+
+void renderTestMouse()
+{
+	TBlit( mouse.x, mouse.y, imMousey, getMcgRenderTarget() );
+	
+	if( mouse.l )
+	{
+		_excellent = 1;	
+		mcg_doclick();	
+		mouse.l = 0;
+	}
+}
+
+int _partytime = 0;
+int _excellent = 0;
+
+void updateImgHandles()
+{
+	String tmp = "";
+	
+	if( _partytime )
+	{
+		tmp = chr(10)+"PARTYTIME!";
+	}
+	
+	if( _excellent )
+	{
+		tmp = chr(10)+"EXCELLENT!";
+	}
+	
+
+	RectFill( 0,0, 200, 40, RGB(255,0,255), imNumImageHandles );
+	PrintString( 5, 5, imNumImageHandles, 0, "systemtime: " + str(systemtime)+chr(10)+"ismoving: "+str(mcgV_heap[mcgHandle_bouncey].is_moving)+chr(10) );
+	
+	
+	PrintString( 11,11 getMcgRenderTarget(), 0,  
+		str(mcgV_heap[mcgHandle_bouncey_x].x)+" != "+str(mcgV_heap[mcgHandle_bouncey_x].final_x) + 
+		" || " +
+		str(mcgV_heap[mcgHandle_bouncey_x].y)+" != "+str(mcgV_heap[mcgHandle_bouncey_x].final_y)	
+	);
+	
+	PrintString( 11,21 getMcgRenderTarget(), 0,  
+		"x.ismoving: "+str(mcgV_heap[mcgHandle_bouncey_x].is_moving)	
+	);
+	
+	PrintString( 11,31 getMcgRenderTarget(), 0,  
+		"bouncey_x_mode: "+str(bouncey_x_mode)	
+	);
+		
+	
+}
+
+void rebounceBouncer()
+{
+	_partytime = 1;
+	
+	mcg_reverse( mcgHandle_bouncey );
+}
+
+
+void killSlime()
+{
+	ChangeSpriteAnimation( mcgHandle_slime, "death" );
+}
+
+
+void translucent_grid()
+{
+	//SetLucent(85);
+	//Blit( 0,0, imBackgroundOverlay, getMcgRenderTarget() );
+	//SetLucent(0);
+}
+
+void tearDownTest()
+{
+	FreeImage( imBackground );
+	FreeImage( imBackgroundOverlay );
+	
+	FreeImage( imNumImageHandles );
+	
+	FreeImage( imMousey );
+	
+	FreeImage( imX );
+	
+	//FreeSprite( sprOnam, 0 );
+	//FreeSprite( sprSlime, 0 );
+}
+
+void rebounceX()
+{
+	bouncey_x_mode++;
+	
+	if( bouncey_x_mode >= 4 )
+		bouncey_x_mode = 0;
+	
+	switch( bouncey_x_mode )
+	{
+		case 0:
+			mcg_newmove( mcgHandle_bouncey_x, 320-22, 1, 320 );
+		case 1:
+			mcg_newmove( mcgHandle_bouncey_x, 320-22, 240-22, 700 );
+		case 2:
+			mcg_newmove( mcgHandle_bouncey_x, 1, 240-22, 450 );
+		case 3:
+			mcg_newmove( mcgHandle_bouncey_x, 1, 1, 100 );
+	}
+}	
+
+
+void endRendTest()
+{
+	_test_render_done = 1;
+}

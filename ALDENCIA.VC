@@ -1,0 +1,430 @@
+void start() 
+{
+	///dualmode for the HUD.
+	V1_StartDualMode( curmap.rstring+",R" );
+
+	InitMap();
+	
+	SotsHudToggle(1);
+	SotsHudDungeonMode(0);
+	
+	V1_StartMusic( "res/music/castle02.mp3" );
+	SetMusicVolume( 15 );
+
+log( "Getzone(0,0): "+str(Getzone(0,0)) );
+SetZone( 0,0,42 );
+log( "Getzone(0,0): "+str(Getzone(0,0)) );
+	
+	SotsHudBanner( "Castle Alden" );
+}
+
+
+void warp_1() { //1
+	v1_mapswitch("court.map",55,88,TCROSS);
+}
+
+void warp_2() { //2
+	warp(142,17,TCROSS);
+}
+
+void warp_3() { //3
+	warp(22,152,TCROSS);
+}
+
+void warp_5() { //5
+	warp(82,106,TCROSS);
+}
+
+void warp_6() { //6
+	warp(192,56,TCROSS);
+}
+
+
+void warp_8() { //8
+	warp(235,17,TCROSS);
+}
+
+void warp_9() { //9
+	warp(65,152,TCROSS);
+}
+
+void warp_11() { //11
+	v1_mapswitch("court.map",162,88,TCROSS);
+}
+
+void warp_12() { //12
+	warp(235,44,TCROSS);
+}
+
+void warp_14() { //14
+	warp(141,44,TCROSS);
+}
+
+void warp_16() { //16
+	warp(23,17,TCROSS);
+}
+
+void warp_17() { //17
+	v1_mapswitch( "court.map",107,173,TCROSS );
+}
+
+void warp_19() { //19
+
+	warp(116,17,TCROSS);
+}
+
+void warp_20() { //20
+	v1_mapswitch("court.map",76,173,TCROSS);
+}
+
+
+void warp_22() {//22
+	warp(77,31,TCROSS);
+}
+
+void warp_23() { //23
+	v1_mapswitch("court.map",160,192,TCROSS);
+}
+
+void warp_24() { //24
+	v1_mapswitch("court.map",161,172,TCROSS);
+}
+
+void warp_25() { //25
+
+	v1_mapswitch( "court.map",166,172,TCROSS);
+}
+
+void warp_27() { //27
+
+	v1_mapswitch( "court.map",107,171,TCROSS );
+}
+
+void warp_29() { //29
+
+	v1_mapswitch( "court.map",76,171,TCROSS );
+}
+
+void warp_31() { //31
+	v1_mapswitch("court.map",108,62,TCROSS);
+}
+
+void warp_32() { //32
+	v1_mapswitch("court.map",167,191,TCROSS);
+}
+
+void warp_33() { //33
+
+	warp(260,78,TCROSS);
+}
+
+void warp_35() { //35
+
+	warp(220,78,TCROSS);
+}
+
+
+void warp_38() { //38
+	warp(62,31,TCROSS);
+}
+
+void warp_40() { //40
+
+	v1_mapswitch( "court.map",13,158,TCROSS );
+}
+
+void warp_41() { //41
+
+	warp(21,76,TCROSS);
+}
+
+void warp_43() { //43
+	v1_mapswitch("court.map",13,160,TCROSS);
+}
+
+
+void warp_45() { //45
+//exit( str(event.tx)+","+str(event.ty) );
+	v1_mapswitch( "court.map",27,181,TCROSS );
+}
+
+void warp_46() { //46
+	warp(118,76,TCROSS);
+}
+
+void warp_48() { //48
+	v1_mapswitch("court.map",27,183,TCROSS);
+}
+
+void warp_49() { //49
+	warp(23,19,TCROSS);
+}
+
+void warp_50() { 
+	warp(116,19,TCROSS);
+}
+
+
+
+void fire_book()
+{
+	if( FacingUp() )
+	{
+		ReadBook( B_ALDEN_FIRE );
+	}
+}
+
+void water_book()
+{
+	if( FacingUp() )
+	{
+		ReadBook( B_ALDEN_WATER );
+	}
+}
+
+void air_book()
+{
+	ReadBook( B_ALDEN_AIR );
+}
+
+void earth_book()
+{
+	ReadBook( B_ALDEN_EARTH );
+}
+
+
+void psion_book() 
+{
+	if( FacingUp() )
+	{
+		ReadBook( B_ALDEN_PSION );
+	}
+}
+
+void allrusen_mage_book() 
+{
+	if( FacingUp() )
+	{
+		ReadBook( B_ALDEN_ALLRUSEN_MAGE );
+	}
+}
+
+void bastien_relic_book() 
+{
+	ReadBook( B_ALDEN_BASTIEN_RELIC );
+}
+
+void six_elements_book() 
+{
+	ReadBook( B_ALDEN_SIX_ELEMENTS );
+}
+
+void army_deployment_book() 
+{
+	ReadBook( B_ALDEN_ARMY_DEPLOYMENT );
+}
+
+void plasm_tactics_book() //84
+{
+	if( FacingUp() )
+	{
+		ReadBook( B_ALDEN_PLASM_TACTICS );
+	}
+}
+
+void mini_finance_book() //85
+{
+	ReadBook( B_ALDEN_MINI_FINANCE );
+}
+
+void ben_franklin_book() //86
+{
+	ReadBook( B_ALDEN_BEN_FRANKLIN );
+}
+
+void founding_book() //87
+{
+	if( FacingUp() )
+	{
+		ReadBook( B_ALDEN_FOUNDING );
+	}
+}
+
+void three_ships_book() //88
+{
+	ReadBook( B_ALDEN_THREE_SHIPS );
+}
+
+void three_captains_book() //89
+{
+	ReadBook( B_ALDEN_THREE_CAPTAINS );
+}
+
+void three_heros_book() //90
+{
+	ReadBook( B_ALDEN_THREE_HEROS );
+}
+
+void crossing_book() //91
+{
+	ReadBook( B_ALDEN_CROSSING );
+}
+
+void huge_ships_book() //92
+{
+	ReadBook( B_ALDEN_HUGE_SHIPS );
+}
+
+void two_seas_book() //93
+{
+	if( FacingUp() )
+	{
+		ReadBook( B_ALDEN_TWO_SEAS );
+	}
+}
+
+void family_history_book() //94
+{
+	int mother = HasReadBook( B_ALDEN_FAMILY_HISTORY );
+
+	
+
+	ReadBook( B_ALDEN_FAMILY_HISTORY );
+	
+	TextBoxM( T_ONAM, "...","","" );
+
+	
+	if( !mother )
+	{
+		AutoText( T_ONAM_SAD,  "...I remember mother...  |I remember the days before...#She was kind to everyone...  |The whole nation wept when they heard of our loss... #Father went into grieving for so long...  |He started acting differently after that day...#...|...that's when everything changed...");
+	}
+	else
+	{
+		AutoText( T_ONAM_SAD, "...mother..." );
+	}
+}
+
+void amin_book() //95
+{
+	ReadBook( B_ALDEN_AMIN );
+}
+
+void listen_book() //81
+{
+	ReadBook( B_ALDEN_LISTEN );
+}
+
+void province_book() //82
+{
+	ReadBook( B_ALDEN_PROVINCE );
+}
+
+void army_reason_book()
+{
+	ReadBook( B_ALDEN_ARMY_REASON );
+}
+
+void plasm_spell_book()
+{
+	ReadBook( B_ALDEN_PLASM_SPELL );
+}
+
+
+void weapon_enchanting_book() //71
+{
+	if( FacingUp() )
+	{
+		ReadBook( B_ALDEN_WEAPON_ENCHANTING );	
+	}
+}
+
+void mountain_logistics_book() //72
+{
+	if( FacingUp() )
+	{
+		ReadBook( B_ALDEN_MOUNTAIN_LOGISTICS );
+	}
+}
+
+
+void bastien_wards_book()
+{
+	ReadBook( B_ALDEN_BASTIEN_WARDS );
+}
+
+void bastien_sealed_labs_book()
+{
+	ReadBook( B_ALDEN_BASTIEN_SEALED_LABS );
+}
+
+void bastien_trove_book()
+{
+	ReadBook( B_ALDEN_BASTIEN_TROVE );
+}
+
+
+void erikk_journal()
+{
+/*
+	if(entity.tx[erikk=92 && entity.ty[erikk]=77)
+	{
+		text(0, SPC_BOOK,  "I've been able to...", 0);
+		text(0, Erikk_angry, "Hey, kid!  Isn't it rude to read over someone's shoulder?", 0);
+	}
+	else
+	{
+		text(0, SPC_BOOK, "I've been able to work through about half of the seal placed on the library.  I swear it's more convoluted than any tangled rope I've ever met... It's almost maddening looking into the work of the Mad Sage...", 0);
+		text(0, SPC_ONAM, "Erikk's been trying to open Bastien's barriers...?", 0);
+	}
+*/
+}
+
+
+
+void erikk_bastien_research()
+{
+	/*
+	if(erik_bas_book==3)
+	{
+		text(0, SPC_ONAM, "Hrmm...  Why is Erikk reading so much about the mad Sage's seals..." ,0);
+		erik_bas_book = 4;
+	}
+	*/
+}
+
+
+///////////
+
+
+void dressers() //60
+{
+	if( flags[F_ALDEN_DRESSER_COUNT] < 10 )
+	{
+		AutoText( T_ONAM, "It's filled with clothes." );
+		flags[F_ALDEN_DRESSER_COUNT]++;
+	}
+	else if( flags[F_ALDEN_DRESSER_COUNT] > 50 )
+	{
+		AutoText( T_ONAM, "I wonder if everyone would let me go through their underwear if I wasn't royalty around here..." );
+	}
+	else
+	{
+		AutoText( T_ONAM, "You'd think they'd've built some closets in this castle..." );
+		flags[F_ALDEN_DRESSER_COUNT]++;
+	}
+}
+
+//do a random silly proclamation-pull here?
+void fillat_cabinet()
+{
+	AutoText( T_ONAM, "It's filled with endless proclamations and records of events..." );
+}
+
+void test_science()
+{
+	AutoText( T_ONAM, "...SCIENCE!" );
+	
+	SotsHudToggle(0);
+	_test_renderguy();
+	SotsHudToggle(1);
+}

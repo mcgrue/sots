@@ -1,0 +1,165 @@
+// Cast.vc, functions that deal with the PCs.
+//
+// by McGrue
+// Started 2004.08.30
+
+
+// The caps placed on HP and MP 
+// 
+#define MAXIMUM_HP_VALUE	999
+#define MAXIMUM_MP_VALUE	999
+
+
+// Takes a cast index and an amount to increase the HP by.
+//
+// adds the specified amount to cur_hp, will not set above max_hp.
+// accepts negative values, will not set below 0.
+//
+// errors if the cast_idx was invalid.
+void HealHP( int cast_idx, int amount ) {
+	if( cast_idx <0 || cast_idx >= MAX_CAST ) {
+		ErrorHandler( "HealHP(): "+str(cast_idx)+" is not a valid cast index." );
+		return;
+	}
+	
+	master_cast[cast_idx].cur_hp += amount;
+	
+	if( master_cast[cast_idx].cur_hp > master_cast[cast_idx].stats[STAT_MAX_HP] ) {
+		master_cast[cast_idx].cur_hp = master_cast[cast_idx].stats[STAT_MAX_HP];
+	} else if( master_cast[cast_idx].cur_hp < 0 ) {
+		master_cast[cast_idx].cur_hp = 0;
+	}
+}
+
+// Takes a cast index and an amount to decrease the HP by.
+//
+// adds the specified amount to cur_hp, will not set below 0.
+// accepts negative values, will not set above MAX_HP.
+//
+// errors if the cast_idx was invalid.
+void HurtHP( int cast_idx, int amount ) {
+	if( cast_idx <0 || cast_idx >= MAX_CAST ) {
+		ErrorHandler( "HurtHP(): "+str(cast_idx)+" is not a valid cast index." );
+		return;
+	}
+	
+	HealHP( cast_idx, 0-amount );
+}
+
+
+// Takes a cast index and an amount to increase the MP by.
+//
+// adds the specified amount to cur_mp, will not set above max_mp.
+// accepts negative values, will not set below 0.
+//
+// errors if the cast_idx was invalid.
+void HealMP( int cast_idx, int amount ) {
+	if( cast_idx <0 || cast_idx >= MAX_CAST ) {
+		ErrorHandler( "HealMP(): "+str(cast_idx)+" is not a valid cast index." );
+		return;
+	}
+	
+	master_cast[cast_idx].cur_mp += amount;
+	
+	if( master_cast[cast_idx].cur_mp > master_cast[cast_idx].stats[STAT_MAX_MP] ) {
+		master_cast[cast_idx].cur_mp = master_cast[cast_idx].stats[STAT_MAX_MP];
+	} else if( master_cast[cast_idx].cur_mp < 0 ) {
+		master_cast[cast_idx].cur_mp = 0;
+	}
+}
+
+// Takes a cast index and an amount to decrease the MP by.
+//
+// adds the specified amount to cur_mp, will not set below 0.
+// accepts negative values, will not set above MAX_MP.
+//
+// errors if the cast_idx was invalid.
+void TakeMP( int cast_idx, int amount ) {
+	if( cast_idx <0 || cast_idx >= MAX_CAST ) {
+		ErrorHandler( "TakeMP(): "+str(cast_idx)+" is not a valid cast index." );
+		return;
+	}
+	
+	HealMP( cast_idx, 0-amount );
+}
+
+// gives a cast member a=n amount of XP based on their master_cast[] index
+// levels the cast member up to the appropriate level for that amount of XP.
+//
+// errors if the XP amount was less than or equal to zero, or if 
+// the master_cast[] index was bad.
+void GiveXP( string name, int xp ) {
+	if (!CharInParty(name)) {
+		ErrorHandler( "GiveXP('"+name+"'): '"+name+"' is not in the party." );
+		return;
+	}
+	
+	if( xp <= 0 ) {
+		ErrorHandler( "GiveXP('"+str(xp)+"'): cannot give a negative or zero amount of XP." );
+		return;
+	}
+	
+	GiveXPI( party[FindPartyPos(name)], xp );
+}
+
+
+// gives a cast member a=n amount of XP based on their master_cast[] index
+// levels the cast member up to the appropriate level for that amount of XP.
+//
+// errors if the XP amount was less than or equal to zero, or if 
+// the master_cast[] index was bad.
+void GiveXPI( int cast_idx, int xp ) {
+	if ( !CharInPartyI(cast_idx) ) {
+		ErrorHandler( "GiveXPI(): cast idx '"+str(cast_idx)+"' is not in the party." );
+		return;
+	}
+	
+	if( xp <= 0 ) {
+		ErrorHandler( "GiveXPI('"+str(xp)+"'): cannot give a negative or zero amount of XP." );
+		return;
+	}
+	
+	master_cast[cast_idx].exp += xp;
+	
+	//level up if neccesary!
+	while( master_cast[cast_idx].level < _calcMyLevelFromMyXP(cast_idx) ) {
+		_doLevelup( cast_idx );
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Helper fuction.  Levels up a master_cast entry once.
+//
+void _doLevelup( int cast_idx ) {
+	int i;
+
+	for (i = 0; i < MAX_GROWABLE_STATS; i++) { 
+		master_cast[cast_idx].stats[i] += master_cast[cast_idx].stat_growth[master_cast[cast_idx].level][i]; 
+	}
+	
+	master_cast[cast_idx].level++;
+}
+
+// Helper function.  Calculates what level a master_cast entry should be 
+//
+int _calcMyLevelFromMyXP( int cast_idx ) {
+
+	int i, level, xp_total_thusfar;
+	
+	while( i < MAX_LEVELS ) {
+
+		i++;
+		
+		xp_total_thusfar +=  master_cast[cast_idx].exp_require[i];
+		
+		if( xp_total_thusfar > master_cast[cast_idx].exp ) {
+			return i;
+		} 
+	}
+	
+	//we've reached max. Damn!
+	return MAX_LEVELS;
+}

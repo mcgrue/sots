@@ -1,0 +1,10 @@
+<xml>
+  <character name="newTanata" source="new_tanata.gif" tcol="86,117,122">
+    <view name="default" type="row" pad="1,1,1,1" dims="16,32"/>
+    <anim name="walk_down"	addr="0" str="F0 W33 F1 W33 F0 W33 F2 W33" />
+    <anim name="old_onam"	addr="0" str="F3" />
+    <anim name="walk_left"	addr="1" str="F0 W33 F1 W33 F0 W33 F2 W33" />
+    <anim name="walk_right"	addr="2" str="F0 W33 F1 W33 F0 W33 F2 W33" />
+    <anim name="walk_up"	addr="3" str="F0 W33 F1 W33 F0 W33 F2 W33" />
+  </character>
+</xml>

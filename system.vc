@@ -1,0 +1,194 @@
+#include "vc/test/vctest.vc"
+#include "vc/test/tests-to-run.vc"
+
+
+// Version number in 127.255.255.255 format, byte 4 ->1
+#define VERSION_4_BYTE 0
+#define VERSION_3_BYTE 0
+#define VERSION_2_BYTE 0
+#define VERSION_1_BYTE 4
+#define VERSION_STRING "(0.0.0.4) - Basic load testing done, checking todo"
+
+#define TRUE  1
+#define FALSE 0
+
+
+// This file is where all the story flag defines live
+// Flags are awesome and important!  
+// Open this file to learn more if you don't already know!
+#include "flags.vc"
+
+// The master include file for all the vc libraries.  Open this up to 
+// See where all of the vc system source is.
+#include "vc/includes.vc"
+
+
+//the books!
+#include "vc/sots/books.vc"
+#include "vc/sots/info.vc"
+
+// a global array of ints for use in functions, 
+// since you can't have local arrays in mapfunctions.  
+// Also useful scratch.  This data is *not* saved.
+int arTemp[100];
+
+
+#include "v3splash.vc"
+
+
+// The AutoExec Function: The first function that gets called.
+//  Everything starts right here when you start up a game.
+//
+
+
+void AutoExec()
+{
+	runTests();
+	exit("penis");
+
+	//CallFunction("v3splash");		//calls the v3splash() function, if it exists.
+	//v3splash();
+	
+
+	HookRetrace("V1RPG_RenderFunc");	// this is the v1_rpg library's default 
+						// Hookretrace function, defined in "vc/v1_rpg/v1_rpg.vc"
+						//
+						// It allows for the handly-dandy vclayer variable
+						// (softcode, not a system feature) to be used, providing
+						// a universal temporary area to draw to the screen with.
+						//
+						// If this confuses you, don't worry about it for now.
+	
+	global_music_volume = 15;
+	SetMusicVolume( global_music_volume );
+	
+	ClearVCLayer();	//part of the v1_rpg.vc lib.  Clears the vclayer.
+	
+	//This allows alt-f4 to exit verge.
+	HookKey( SCAN_F4, "alt_f4" );
+	HookKey( SCAN_F9, "logGameFlags" );
+
+	//the following functions initialize things in the various libraries 
+	// that need initializing... images, sounds, whatever.	
+	V1RPG_LoadResources();	//loads resources for the v1rpg library.
+	SSAC_LoadResources();	//loads resources for the Sully: Simple and Clean library
+	SMENU_LoadResources();	//loads resources for the Simple Menu library
+
+
+	init_speech_ports();	//loads the speech portraits
+
+	global_noscroll = 0;
+
+	init_book_data();
+
+	ClearVCLayer();
+
+	JoinParty("Onam", 5);
+	JoinParty("Tanata", 5);
+	JoinParty("Erikk", 5);
+
+	money = 350;
+
+	playerdiagonals = 1;
+	playerstep = 16;
+
+	V1_MapSwitch( "aldencia.map",228,40,TNONE );
+	
+	
+	//V1_MapSwitch( "alden_mt1.map",100,75,TNONE );
+	
+	//V1_MapSwitch( "fenslyd_holy_mt.map",153,71,TNONE );
+	
+	//V1_MapSwitch( "fenslyd_holy_mt.map",59,59,TNONE );
+	
+	//v1_mapswitch("World.map" , 639,308 ,TWIPE);
+	
+	
+	
+	//V1_MapSwitch( "ontaran_no.map",16,135,TNONE );
+	//V1_MapSwitch( "ontaran_caves_1.map",16,135,TNONE );
+	
+	//V1_MapSwitch( "ontaran_caves_3.map",54,76,TNONE );
+}
+
+
+int alden_bottom; //ARGH!
+
+
+// Melds all the map-upkeep needs of the three libraries 
+// this game uses.
+//
+void InitMap() {
+	
+	// from the Simpletype library... this makes
+	// sure that your party is on the map!
+	//
+	// note: mapswitchx, mapswitchy are parts of the v1_rpg library 
+	//       set by v1_MpaSwitch()
+	SpawnParty( mapswitchx, mapswitchy );
+	
+	// from the menu library, this makes sure that if you're in
+	// menu-off mode, it stays off, or vica versa.
+	if (_menu_on) MenuOn();
+	else MenuOff();
+	
+	// from the v1_rpg effects library
+	// this makes sure that the second half of any transition effect
+	// started by v1_MapSwitch() is completed!
+	v1_InitMap();
+}
+
+
+
+//This allows alt-f4 to exit verge.
+void alt_f4()
+{
+	if( key[SCAN_ALT] ) {
+		exit( "" );
+	}
+}
+
+void logGameFlags() {
+	
+	int i;
+	
+	for( i=0; i<256; i++ ) {
+		log( "flags["+str(i)+"]: " + str(flags[i]) );
+	}
+	
+	MessageBox( "Done logging." );
+	
+}
+
+
+int T_FRAME;
+int T_ONAM, T_ONAM_PLEASED, T_ONAM_SAD, T_ONAM_SUSPICIOUS, T_ONAM_SURPRISED;
+int NPC_ALDEN_GUARD, NPC_ALDEN_MAGE, NPC_ALDEN_SCHOLAR;
+int T_BOOK, T_OLD_BOOK, T_ERIKK_DIARY;
+
+int T_GRUE;
+
+void init_speech_ports() {
+
+	T_FRAME			= LoadImage( "images\portraits\frame.gif" );
+	
+	T_ONAM			= LoadImage( "images\portraits\onam\onam_talking.png" );
+	T_ONAM_PLEASED		= LoadImage( "images\portraits\onam\onam_pleased.png" );
+	T_ONAM_SAD		= LoadImage( "images\portraits\onam\onam_sad.png" );
+	T_ONAM_SUSPICIOUS	= LoadImage( "images\portraits\onam\onam_suspicious.png" );
+	T_ONAM_SURPRISED	= LoadImage( "images\portraits\onam\onam_surprised.png" );
+	
+	NPC_ALDEN_GUARD		= LoadImage( "images\portraits\npcs\alden\alden_guard.png" );
+	NPC_ALDEN_MAGE		= LoadImage( "images\portraits\npcs\alden\alden_mage.png" );
+	NPC_ALDEN_SCHOLAR	= LoadImage( "images\portraits\npcs\alden\alden_scholar.png" );
+	
+	T_BOOK			= LoadImage( "images\portraits\misc\book.png" );
+	T_OLD_BOOK		= LoadImage( "images\portraits\misc\book1.png" );
+	T_ERIKK_DIARY		= LoadImage( "images\portraits\misc\book1.png" );
+	
+	T_GRUE			= LoadImage( "res\_test\tired_ben.gif" );
+}
+
+#include "vc/rend/test_render.vc"
+
+String hudOverworldLocationOverride = "";

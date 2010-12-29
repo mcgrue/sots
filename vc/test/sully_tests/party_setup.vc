@@ -1,0 +1,33 @@
+
+
+void _test_clear_party()
+{
+	/// Setup.
+	int i = 0;
+	curpartysize = 0;
+	for( i=0; i<MAX_PARTY_SIZE; i++ )
+	{
+		party[i] = -1;
+	}
+}
+
+void test_party_setup()
+{
+	_test_clear_party();
+
+	/// instance 
+	JoinParty( "Onam", 5 ) ;
+	JoinParty( "Tanata", 6 );
+	JoinParty( "Erikk", 10 );
+	
+	assertTrue( curpartysize==3 );
+	
+	assertTrue( CharInParty("Onam") );
+	assertTrue( CharInParty("Tanata") );
+	assertTrue( CharInParty("Erikk") );
+	assertFalse( CharInParty("Alex") );
+	assertFalse( CharInParty("Alec") );
+		
+	_test_clear_party();
+}
+

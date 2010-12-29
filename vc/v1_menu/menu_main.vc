@@ -1,0 +1,60 @@
+// menu_main.vc for Sully www.verge-rpg.com
+// Zip 05/09/2004
+
+//        ---------------
+//       Main Menu
+//        ---------------
+
+void MenuControlMain()
+{
+	menu_option = MenuControlArrows(menu_option, 7);
+	if (MenuConfirm())
+	{
+		switch( menu_option )
+		{
+			case 0:	menu_idx = MenuGet("Item");
+					menu_sub = 0;
+					menu_item = 0;
+					if (MenuGetItemCount() = 0) menu_item = 0-1;
+					else menu_item = 0;
+					MenuHappyBeep();
+			case 1:	menu_idx = MenuGet("Cast");
+					menu_cast = 0;
+					MenuHappyBeep();
+			case 2:	menu_idx = MenuGet("Cast");
+					menu_cast = 0;
+					MenuHappyBeep();
+			case 3:	menu_idx = MenuGet("Cast");
+					menu_cast = 0;
+					MenuHappyBeep();
+			case 4:	menu_idx = MenuGet("Option");
+					menu_sub = 0;
+					menu_item = 0;
+					MenuHappyBeep();
+			case 5:	if (can_save == 1)
+					{
+						menu_idx = MenuGet("Save");
+						menu_sub = MenuInitSave();
+						menu_item = 0;
+						MenuHappyBeep();
+					}
+					else MenuAngryBuzz();
+			case 6:	menu_idx = MenuGet("Save");
+					menu_sub = MenuInitSave();
+					menu_item = 0;
+					MenuHappyBeep();
+		}
+		//menu_cast = 0;
+		//menu_sub = 0;
+	}
+	if (MenuCancel())
+	{
+		menu_done = 1;
+	}
+}
+
+void MenuDrawMain()
+{
+	MenuBlitRight(1, menu_option);
+	MenuBlitCenter(0);
+}

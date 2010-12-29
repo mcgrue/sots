@@ -1,0 +1,64 @@
+// returns 1 if a conversation happened, 0 if not.
+//
+int DoInternetConversation( string url )
+{
+	string src = GetUrlText( url );	
+	int linecount = TokenCount( src, chr(10) );
+	string s1,s2,s3;
+	int prt, i;
+	int first;
+	
+	first = 1;
+	
+	while( (i+4) <= linecount )
+	{
+		prt = NameToPort( GetToken(src,chr(10),i) );
+		
+		i++;
+		s1 = trim( GetToken(src,chr(10),i) );
+		i++;
+		s2 = trim( GetToken(src,chr(10),i) );
+		i++;
+		s3 = trim( GetToken(src,chr(10),i) );
+		i++;
+		
+		if( prt < 0 ) 
+		{
+			if( first )
+			{
+				return 0;				
+			}
+			
+			return 1;
+		}
+		
+		TextBox( prt, s1, s2, s3 );
+		
+		first = 0; //if we got here, it's no longer the first time
+	}
+	
+	if( first ) //if this is still true, no conversation happened!
+	{
+		return 0;
+	}
+	
+	return 1;
+}
+
+// returns the speech index for a given name
+// returns -1 on a bad name.
+int NameToPort( string name )
+{
+	if( equ(name,"sully") )		return T_SULLY;
+	if( equ(name,"darin") )		return T_DARIN;
+	if( equ(name,"stan") )		return T_STAN;
+	if( equ(name,"crystal") )	return T_CRYSTAL;
+	if( equ(name,"dexter") )	return T_DEXTER;
+	if( equ(name,"galfrey") )	return T_GALFREY;
+	if( equ(name,"sara") )		return T_SARA;
+	if( equ(name,"slasher") )	return T_SLASHER;
+	if( equ(name,"bert") )		return T_MANTA;
+	if( equ(name,"bunny") )		return T_BUNNY;
+	
+	return 0-1;
+}

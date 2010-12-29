@@ -1,0 +1,20 @@
+void start() 
+{ 
+	V1_StartDualMode( "4,1,3,E,2,5,R,R" );
+	
+	InitMap();
+	
+	SotsHudToggle(1);
+	
+	V1_StartMusic( "res/music/crystalline_tears.it" );
+	
+	SotsHudBanner( "The Ontaran Caves" );
+}
+
+void layer_4_0_percent()	{ layer.lucent[4] = 0; }
+void layer_4_10_percent()	{ layer.lucent[4] = 10; }
+void layer_4_20_percent()	{ layer.lucent[4] = 20; }
+void layer_4_30_percent()	{ layer.lucent[4] = 30; }
+
+void stepon()	{ playerstep=16; }
+void stepoff()	{ playerstep=1; }

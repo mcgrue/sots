@@ -1,0 +1,301 @@
+
+void AnnounceCourt()
+{
+	SotsHudBanner( "Castle Alden: Courtyard" );
+}
+
+void start() 
+{
+	V1_StartDualMode( curmap.rstring+",R" );
+	
+	InitMap();
+	
+	SotsHudToggle(1);
+	
+	V1_StartMusic( "res/music/castle02.mp3" );
+}
+
+void warp_1 () {
+	
+	v1_mapswitch( "aldencia.map",125,68,TCROSS);
+}
+
+void warp_2 () {
+
+	v1_mapswitch( "aldencia.map",13,68,TCROSS);
+}
+
+void warp_3 () {
+
+	warp(20,154,TCROSS);
+}
+
+void warp_4 () {
+
+	warp(20,177,TCROSS);
+}
+
+void warp_5 () {
+
+	warp(69,177,TCROSS);
+}
+
+void warp_6 () {
+
+	warp(60,172,TCROSS);
+}
+
+void warp_7 () {
+
+	warp(183,172,TCROSS);
+}
+
+void warp_8 () {
+
+	warp(144,172,TCROSS);
+}
+
+void warp_9 () {
+
+	warp(123,172,TCROSS);
+}
+
+void warp_10 () {
+
+	warp(114,177,TCROSS);
+}
+
+void warp_11 () {
+
+	hudOverworldLocationOverride = "Western Aldencia";
+
+	v1_mapswitch("World.map" ,573 ,270 ,TWIPE);
+}
+
+void warp_12 () {
+
+	v1_mapswitch("aldencia.map",221,104,TCROSS);
+}
+
+void warp_13 () {
+
+	v1_mapswitch("aldencia.map",142,19,TCROSS);
+}
+
+void warp_15 () {
+
+	warp(68,43,TCROSS);
+}
+
+void warp_16 () {
+	warp(81,33,TCROSS);
+	AnnounceCourt();
+}
+
+void warp_17 () {
+
+	v1_mapswitch("aldencia.map",275,104,TCROSS);
+}
+
+void warp_18 () {
+
+	v1_mapswitch("aldencia.map",235,19,TCROSS);
+}
+
+
+void warp_20 () {
+
+	warp(148,43,TCROSS);
+}
+
+void warp_21 () {
+	warp(136,33,TCROSS);
+	
+	setOverBridge();
+	
+	AnnounceCourt();
+}
+
+void warp_22 () {
+
+	v1_mapswitch("aldencia.map",181,43,TCROSS);
+}
+
+void warp_23 () {
+
+	v1_mapswitch("aldencia.map",186,43,TCROSS);
+}
+
+void warp_24 () {
+
+	warp(96,33,TCROSS);
+	AnnounceCourt();
+}
+
+void warp_25 () {
+
+	warp(121,33,TCROSS);
+	AnnounceCourt();
+}
+
+void warp_27 () {
+	
+	v1_mapswitch("aldencia.map",176,56,TCROSS);
+}
+
+void warp_28 () {
+
+	v1_mapswitch("aldencia.map",235,78,TCROSS);
+}
+
+void warp_30 () {
+
+	warp(68,80,TCROSS);
+	AnnounceCourt();
+}
+
+void warp_31 () {
+
+	v1_mapswitch("aldencia.map",141,42,TCROSS);
+}
+
+void warp_32 () {
+
+	v1_mapswitch("aldencia.map",143,71,TCROSS);
+}
+
+
+void doTopBottomObs( int on )
+{
+	int x = 0;
+	
+	for( x=104; x<=113; x++ )
+	{
+		SetObs( x,91,on );
+		SetObs( x,97,on );
+	}
+	
+	SetObs( 104,104,on );
+	SetObs( 105,104,on );
+	SetObs( 108,104,on );
+	SetObs( 109,104,on );
+	SetObs( 112,104,on );
+	SetObs( 113,104,on );	
+	
+	int o11 = 0;
+	int o10 = 0;
+	
+	if( on )
+	{
+		o11 = 11;
+		o10 = 10;
+	}
+	
+	SetObs( 104,95,o10 );
+	SetObs( 108,95,o10 );
+	SetObs( 112,95,o10 );
+	
+	SetObs( 105,95,o11 );
+	SetObs( 109,95,o11 );
+	SetObs( 113,95,o11 );
+}
+
+void doLeftRightObs( int on )
+{
+	int y = 0;
+	
+	for( y=92; y<=96; y++ )
+	{
+		SetObs( 103,y,on );
+		SetObs( 114,y,on );
+	}
+}
+
+
+void setOverBridge()
+{
+	SetRString( "1,2,E,R" );
+	
+	doTopBottomObs( 1 );
+	doLeftRightObs( 0 );	
+}
+
+void setUnderBridge()
+{
+	SetRString( "1,E,2,R" );
+	
+	doTopBottomObs( 0 );
+	doLeftRightObs( 1 );
+}
+
+
+void warp_33() {
+
+	warp(81,94,TCROSS);
+
+	setOverBridge();
+
+	AnnounceCourt();
+}
+
+void warp_34() {
+	exit( "warp_34!" );
+}
+
+void warp_35() {
+	
+	warp(148,80,TCROSS);
+	AnnounceCourt();
+}
+
+void warp_36() {
+	warp(136,94,TCROSS);
+
+	AnnounceCourt();
+}
+
+void warp_37() {
+	
+	v1_mapswitch("aldencia.map",235,42,TCROSS);
+}
+
+void warp_38() {
+	
+	v1_mapswitch("aldencia.map",267,47,TCROSS);
+}
+
+void warp_39() {
+	
+	warp(29,159,TCROSS);
+}
+
+void warp_40() {
+	
+	warp(11,182,TCROSS);
+	
+}
+
+void warp_41() {
+	
+	v1_mapswitch("aldencia.map",69,35,TCROSS);
+}
+
+void change_rstring() //42
+{
+	
+}
+
+void if_not_bottom() //43
+{
+	
+}
+
+void set_bottom() //44
+{
+	setUnderBridge();
+}
+
+void do_overbridge()
+{
+	setOverBridge();
+}

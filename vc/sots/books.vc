@@ -1,0 +1,297 @@
+struct Book 
+{
+	int info_idx;		//the master_info index for this book.
+	
+	string location;	//the name of the room it was found in.
+	
+	string mapname;		//the filename of the map it was on.
+	int x,y;			//tile coordinates of the top leftmost tile of this book's activation
+	
+	int spc;			//any special SPC?  0 if default book.
+}
+
+#define MAX_BOOKS 500
+
+Book master_books[MAX_BOOKS];
+int master_book_count;
+
+void init_book_data()
+{
+	
+	AddBook(
+		"Elements, Fire",
+		"Fire represents change, destruction, and rebirth.|_|To weave it into a ward is a task, needing a firm touch and quick reflexes.",
+		"Mage's Lab",
+		"Valencia",	220,45);	
+
+	AddBook(
+		"Elements, Water",
+		"Water, the element of wisdom, life, and motherhood.|_|To weave it takes a tender touch and gracefulness.",
+		"Mage's Lab",
+		"aldencia.map",	220,41);
+		
+	AddBook(
+		"Elements, Air",
+		"Air, the element of freedom, happiness, and the spirit of the fleeting moment.|_|To weave it takes a light touch and persistence.",
+		"Mage's Lab",
+		"aldencia.map",	224,38);	
+
+	AddBook(
+		"Elements, Earth",
+		"Earth, representing durability, protection, and fatherhood.|_|To weave it takes patience, above all else.",
+		"Mage's Lab",
+		"aldencia.map",	231,38);
+
+	AddBook(
+		"Psions",
+		"The Psions' ability to cast spells straight from their mind is truly astounding, almost as much as these MindWalkers strange appearance out of the blue a few hundred years ago...",
+		"Erikk's Study",
+		"aldencia.map",	252,48);
+		
+	AddBook(
+		"Allrusen, Mages",
+		"The Mages of Allrusen, while far less numerous than our own, seem to have a singular common thread of magical strength. This lends credence to the speculation that a mage's prowess is in part, or whole, hereditarily based.",
+		"Erikk's Study",
+		"aldencia.map",	252,44);
+		
+	AddBook(
+		"Bastien, Relics",
+		"The Great Sage Bastien, much before his madness, created nine relics of incredible craft. Three swords, Three Shields, and Three Staves.  He gave one of each to each of the Three kingdoms in the Newlands, saying that there would be a need for them in the future.  Sadly, when he went mad, he stole Aldencia's triplet of Relics, and they have not been seen since.",
+		"Erikk's Study",
+		"aldencia.map",	256,41);
+		
+	AddBook(
+		"Elements, Theory",
+		"There are four material elements, yet only two spiritual elements. Theory states that there must be more, but how can we touch that which we know not of?",
+		"Erikk's Study",
+		"aldencia.map",	263,41);
+		
+	AddBook(
+		"Aldencia, Army",
+		"Aldencian forces distribution, 818 A.C.: Two regiments in the eastern fields, Two regiments in the west, one to protect the castle and Amaxis proper, and the calvary sweeping to where needed.",
+		"Velirk's Study",
+		"aldencia.map",	274,100);
+		
+	AddBook(
+		"Aldencia, Plasms",
+		"The tactics against Plasms are simple.  First, make sure there are enough defenders to form a line that they cannot ooze around. Second, keep the phalanx at all costs.  A large swarm of them can try to swim around the line and start absorbing people.  This should be avoided at all costs.",
+		"Velirk's Study",
+		"aldencia.map",	260,107);
+		
+	AddBook(
+		"Aldencia, Ministry of the Treasury",
+		"The ministry of finance makes sure the kingdom's coffers are adequately filled, and settles business and trade disputes within and without the borders.",
+		"Treasury",
+		"aldencia.map",	225,100);
+		
+	AddBook(
+		"General Wisdom",
+		"A bird in the hand is worth two in the bush, A penny saved is a penny earned, and never expect a Minister of Finance to give up a copper.#These are inalienable truths.",
+		"Treasury",
+		"aldencia.map",	230,100);
+		
+		
+	AddBook(
+		"Aldencia, Founding",
+		"Willam Alden, Captain of the largest of the Crossing ships, the Dawn, landed north of most of the rest of the ships, on the shores of what would one day become Aldencia.",
+		"Castle Library",
+		"aldencia.map",	219,65);		
+		
+	AddBook(
+		"Crossing, Ships",
+		"Of the seven ships that set out on the Crossing, only three survived. The Dawn, the Creator's Blessing, and the Promise.",
+		"Castle Library",
+		"aldencia.map",	220,60);		
+		
+	AddBook(
+		"Crossing, Captains",
+		"The Three captains of the three surviving ships kept control of the panicking colonists during the arduous voyage and the first years of the Newlands settlement.  Their benign leadership continues to this day, through their heirs, the royal families of the three kingdoms.",
+		"Castle Library",
+		"aldencia.map",	223,60);		
+		
+	AddBook(
+		"Crossing, Captains",
+		"Willam Alden, Enisa Allru, and Ehjam Fensli, the captains of the three surviving ships.  To the peoples of the crossing, there were no greater heroes than these three, who saved thousands of their lives, and preserved their way of life.",
+		"Castle Library",
+		"aldencia.map",	227,60);		
+		
+	AddBook(
+		"Crossing",
+		"The Crossing was the epic journey by boat, from the Western continent, the Wilderlands, to this land, the Newlands. We had to abandon our ancestral home to avoid the plagues and upheavals known as the Cataclysm.",
+		"Castle Library",
+		"aldencia.map",	231,60);		
+		
+	AddBook(
+		"Crossing, Ships",
+		"The ships of the crossing were huge, made of stone, wood, and magic. Each ship carried thousands of people, and looked as to our small modern ships like mammoths on the sea.  The surviving vessels were cannibalized for parts soon after landing in the Newlands.",
+		"Castle Library",
+		"aldencia.map",	234,60);		
+		
+	AddBook(
+		"Emtara, Seas",
+		"The Crossing occurred over the great western sea, even though the Newlands and the Wilderlands are closer by the Eastern Sea.  However, the eastern sea, much like the Wilderlands, were havoc-wrought by the Cataclysm, so the longer route was the safer, if still quite treacherous...",
+		"Castle Library",
+		"aldencia.map",	235,65);
+		
+	AddBook(
+		"Aldencia, House Alden",
+		"The reigning king of Aldencia, Enton Onata Alden III, lost his wife to the plague of 811. The nation mourned all of it's losses, but hers most of all.",
+		"Main Hall, 2F",
+		"aldencia.map",	177,52);
+		
+	AddBook(
+		"Aldencia, House Alden",
+		"Born 794 B.C., the Crown prince Amineth Emaxis Alden is the pending twenty-fifth heir and successor of the Great Willam Alden.",
+		"Main Hall, 2F",
+		"aldencia.map",	189,52);
+		
+	AddBook(
+		"General Wisdom",
+		"Listen to your people, and you will know their needs.  A simple conclusion, that is sometimes forgotten.",
+		"Ministry of the People",
+		"aldencia.map",	161,13);
+		
+	AddBook(
+		"Aldencia, Provinces",
+		"Aldencia consists of the Eastern province Somata, the Western province Amaxis, and the southern province, Telluro.  The Alden mountain chain separates the three, and often makes it hard to stay in touch with Telluro.",
+		"Ministry of the People",
+		"aldencia.map",	175,13);
+		
+		
+	AddBook(
+		"Aldencia, Plasms",
+		"For centuries, Alden's mages have sought out a spell that would eliminate the cursed plasms... but none has yet appeared.",
+		"Main Hall, 1F",
+		"aldencia.map",	113,72);
+		
+		
+	AddBook(
+		"Aldencia, Army",
+		"For the last seven hundred years Aldencia has had an active fighting force, to protect the land from the perennial threat of the Plasms. No other recorded civilization has ever needed a standing army.",
+		"Main Hall, 1F",
+		"aldencia.map",	25,72);
+		
+	AddBook(
+		"Magic, Enchanting: Weapons",
+		"The specially enchanted swords and armors that the Aldencian Calvary use are in limited supply, as the lore to weave these wards was sealed in the library of Amaxis when Bastien went Mad.  At present, our enchanters have a lesser skill than is required to imitate some of the artifact equipment still in use today.",
+		"Training Room",
+		"aldencia.map",	142,68);
+		
+	AddBook(
+		"Aldencia, Army",
+		"The mountain chain that splits Aldencia into two parts can be a logistical nightmare, Neccesitating that the army be split in two at all times...",
+		"Training Room",
+		"aldencia.map",	157,68);
+/**		
+	AddBook(
+		"Bastien, Wards",
+		"The woven wards of shielding and binding that the Great sage Bastien created were the most robust and complex ever known. The ones he created while maddened were manyfold as complex and convoluted, and seemingly as unweavable.",
+		"Erikk's Private Study",
+		"aldencia.map",	,);
+
+	AddBook(
+		"Bastien, Wards",
+		"Bastien sealed many places on the day of his maddening.  His laboratories in each of the capital cities, the Amaxis Library's research area, and a private residence in Telluro. For one as insane as he, the Sage almost had a singular clarity in these actions, by all observers accounts.",
+		"Erikk's Private Study",
+		"aldencia.map",	,);
+		
+	AddBook(
+		"Bastien, Research",
+		"The advances in the arts were profound during Bastien's reign.  The relics and books inside the sealed labs are a treasure trove of information which any scholar would eagerly grab, if possible.",
+		"Erikk's Private Study",
+		"aldencia.map",	,);
+		
+	AddBookSpecial(
+		"Bastien, Wards",
+		"",
+		"Erikk's Private Journal",
+		"aldencia.map",	,);
+**/
+
+		
+		
+
+
+
+
+		
+}
+
+
+// Adds a book to the master book array, returns the book's index.
+//
+int AddBook( string _subject, string _text, string _location, string _mapname, int _x, int _y )
+{
+	int i = master_book_count;
+	
+	if( i >= MAX_BOOKS ) {
+		ErrorHandler("Book.vc::AddBook(): you have exceeded your MAX_BOOKS limit of " + str(MAX_BOOKS)+".");
+		return 0-1;
+	}
+	
+	master_books[i].info_idx = AddInfo( _subject, _text, "Book", i);
+	
+	master_books[i].location	= _location;
+	master_books[i].mapname		= _mapname;
+	master_books[i].x			= _x;
+	master_books[i].y			= _y;	
+	
+	master_book_count++;
+	
+	return i;
+}
+
+void ReadBook( int book_idx )
+{
+	ReadSpecialBook( book_idx, T_BOOK );
+}
+
+void ReadSpecialBook( int book_idx, int spc_img )
+{
+	int i;
+
+	AutoText( spc_img, master_info[master_books[book_idx].info_idx].info );
+	
+	//set the info as known.  If this wasn't already read, 
+	// put another notch in Onam's librarian belt.
+	if( SetInfoKnown( master_books[book_idx].info_idx ) )
+	{
+		collections[COLLECT_BOOKS_READ]++;	
+	}
+}
+
+int HasReadBook( int book_idx )
+{
+	return IsInfoKnown( master_books[book_idx].info_idx );
+}
+
+#define B_ALDEN_FIRE				0
+#define B_ALDEN_WATER				1
+#define B_ALDEN_AIR					2
+#define B_ALDEN_EARTH				3
+#define B_ALDEN_PSION				4
+#define B_ALDEN_ALLRUSEN_MAGE		5
+#define B_ALDEN_BASTIEN_RELIC		6
+#define B_ALDEN_SIX_ELEMENTS		7
+#define B_ALDEN_ARMY_DEPLOYMENT		8
+#define B_ALDEN_PLASM_TACTICS		9
+#define B_ALDEN_MINI_FINANCE		10
+#define B_ALDEN_BEN_FRANKLIN		11
+#define B_ALDEN_FOUNDING			12
+#define B_ALDEN_THREE_SHIPS			13
+#define B_ALDEN_THREE_CAPTAINS		14
+#define B_ALDEN_THREE_HEROS			15
+#define B_ALDEN_CROSSING			16
+#define B_ALDEN_HUGE_SHIPS			17
+#define B_ALDEN_TWO_SEAS			18
+#define B_ALDEN_FAMILY_HISTORY		19
+#define B_ALDEN_AMIN				20
+#define B_ALDEN_LISTEN				21
+#define B_ALDEN_PROVINCE			22
+#define B_ALDEN_PLASM_SPELL			23
+#define B_ALDEN_ARMY_REASON			24
+#define B_ALDEN_WEAPON_ENCHANTING	25
+#define B_ALDEN_MOUNTAIN_LOGISTICS	26
+#define B_ALDEN_BASTIEN_WARDS		27
+#define B_ALDEN_BASTIEN_SEALED_LABS	28
+#define B_ALDEN_BASTIEN_TROVE		29

@@ -1,0 +1,36 @@
+void start() { //0, autoexec
+
+	V1_StartDualMode( "1,E,R,R" );
+	
+	InitMap();
+	
+	SotsHudToggle(1);
+	
+	if( !equ(hudOverworldLocationOverride,"") )
+	{
+		SotsHudBanner( "Emtara: "+hudOverworldLocationOverride );
+		hudOverworldLocationOverride = "";
+	}
+	else
+	{
+		SotsHudBanner( "Emtara: Overworld" );
+	}
+	
+	V1_StartMusic( "res/music/over01.mp3" );
+}
+
+void castle_alden() { //1, Alden casltle
+	//mapswitch( "Castle Alden: Court", "court.map",108 ,103 ,TRUE);
+	
+	v1_mapswitch("court.map" ,108 ,107 ,TWIPE);
+}
+
+void amaxis_city() { //2, Amaxis
+	//mapswitch( "City of Amaxis", "amaxis.map",49,11 ,TRUE);
+	
+	v1_mapswitch("amaxis.map" ,49,11 ,TWIPE);
+}
+
+void bastiens_tower() { //3, Bastien's tower
+	
+}

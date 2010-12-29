@@ -1,0 +1,365 @@
+// menu_shop.vc for Sully www.verge-rpg.com
+// Zip 05/09/2004
+
+//        ----------------
+//       Shop Menu
+//        ----------------
+
+void MenuShop(string items)
+{
+	int shop_i = 0;
+	int shop_count = 0;
+	string item_list = "";
+	string item_name = GetToken(items, "|, ", 0);
+	while (len(item_name))
+	{
+		for (shop_i = 0; shop_i < MAX_ITEMS; shop_i++) // Loops through items
+		{
+			if (CompareStrings(master_items[shop_i].name, item_name)) // Checks value against item names
+			{
+				item_list = item_list + str(shop_i) + "|";
+				shop_i = MAX_ITEMS + 1; // Breaks out of loop
+			}						
+		}
+		if (shop_i == MAX_ITEMS) // If no match was found
+		{
+			ErrorLoadType("MenuShop()", item_name); // Throws error
+		}
+		shop_count++;
+		item_name = GetToken(items, "|, ", shop_count);
+	}
+	MenuShopI(item_list);
+}
+
+void MenuShopI(string items)
+{
+	menu_done = 0;
+	menu_option = 0;
+	menu_item = 0;
+	menu_cast = 0;
+	menu_idx = 0;
+	menu_number = 1;
+	menu_sub = TokenCount(items, "|, ");
+	save_display[0].text = items;
+	MenuOff();
+	while(!menu_done)
+	{
+		MenuBackGroundDraw(); //draw universal things
+		
+		if (menu_idx == 0) MenuDrawShopMain();
+		else if (menu_idx == 1) MenuDrawShopBuy();
+		else if (menu_idx == 2) MenuDrawShopSellSupply();
+		else if (menu_idx == 3) MenuDrawShopSellEquip();
+		
+		ShowPage();
+		
+		if (menu_idx == 0) MenuControlShopMain();
+		else if (menu_idx == 1) MenuControlShopBuy();
+		else if (menu_idx == 2) MenuControlShopSellSupply();
+		else if (menu_idx == 3) MenuControlShopSellEquip();
+		else if (MenuCancel())
+		{
+			menu_done = 1;
+		}
+	}
+	MenuOn();
+}
+
+
+void MenuControlShopMain()
+{
+	int i;
+	menu_option = MenuControlArrows(menu_option, 5);
+	if (MenuConfirm())
+	{
+		switch (menu_option)
+		{
+			case 0:	if(menu_sub > 0)
+					{
+						menu_idx = 1;
+						MenuHappyBeep();
+					}
+					else MenuAngryBuzz();
+			case 1:	if(SupplyCount() > 0)
+					{
+						menu_idx = 2;
+						MenuHappyBeep();
+					}
+					else MenuAngryBuzz();
+			case 2:	if(EquipmentCount() > 0)
+					{
+						menu_idx = 3;
+						MenuHappyBeep();
+					}
+					else MenuAngryBuzz();
+			case 3:	if(1)
+					{
+						for (i = 0; i < 100; i++) GiveItemI(Random(0, 46), 1);
+						MenuMinibox("It's a sekrit!", "MenuDrawShopMain");
+						MenuHappyBeep();
+					}
+					else MenuAngryBuzz();
+			case 4:	menu_done = 1;		
+		}
+	}
+	if (MenuCancel())
+	{
+		menu_done = 1;
+	}
+}
+
+void MenuControlShopBuy()
+{
+	int movey = MenuControlTwoArrows("menu_item", menu_sub, "menu_number", 99);
+	if (movey & 1)
+	{
+		if (menu_start  + 6 < menu_item) menu_start = menu_item - 6;
+		else if (menu_start > menu_item && menu_item >= 0) menu_start = menu_item;	
+		menu_number = 1;
+	}
+	if (movey & 2)
+	{
+	}
+	if (MenuConfirm())
+	{
+		MenuMinibox("FUCK YOU MR I AINT SELLING", "MenuDrawShopMain");
+	}
+	if (MenuCancel())
+	{
+		menu_idx = 0;
+		menu_item = 0;
+	}
+	if (b4)
+	{
+		Unpress(4);
+		menu_cast = (menu_cast + 1) % curpartysize;
+	}
+}
+
+void MenuControlShopSellSupply()
+{
+	int movey = MenuControlTwoArrows("menu_item", _supply_count, "menu_number", 99);
+	if (movey & 1)
+	{
+		if (menu_start  + 10 < menu_item) menu_start = menu_item - 10;
+		else if (menu_start > menu_item && menu_item >= 0) menu_start = menu_item;		
+		menu_number = 1;
+	}
+	if (movey & 2)
+	{
+	}
+	if (MenuConfirm())
+	{
+		MenuMinibox("I DON'T WANT THAT JUNK", "MenuDrawShopMain");
+	}
+	if (MenuCancel())
+	{
+		menu_idx = 0;
+		menu_item = 0;
+	}
+}
+
+void MenuControlShopSellEquip()
+{
+	int movey = MenuControlTwoArrows("menu_item", _equip_count, "menu_number", 99);
+	if (movey & 1)
+	{
+		if (menu_start  + 10 < menu_item) menu_start = menu_item - 10;
+		else if (menu_start > menu_item && menu_item >= 0) menu_start = menu_item;		
+		menu_number = 1;
+	}
+	if (movey & 2)
+	{
+		
+	}
+	if (MenuConfirm())
+	{
+		MenuMinibox("TAKE YOU'RE CRAP ELSEWHERE", "MenuDrawShopMain");		
+	}
+	if (MenuCancel())
+	{
+		menu_idx = 0;
+		menu_item = 0;
+	}
+}
+
+void MenuDrawShopMain()
+{
+	int summat = 0;
+	if (menu_idx == 0) summat = 1;
+	MenuBlitShopLeft(summat, menu_option);
+	
+	if (menu_option == 0)
+	{
+		MenuDrawBackground(90, 10, 310, 130, 0);
+		MenuBlitShopBuy();
+	}
+	if (menu_option == 1)
+	{
+		MenuDrawBackground(90, 10, 310, 230, 0);
+		MenuBlitShopSellSupply();
+	}
+	if (menu_option == 2)
+	{
+		MenuDrawBackground(90, 10, 310, 230, 0);
+		MenuBlitShopSellEquip();
+	}
+}
+
+void MenuDrawShopBuy()
+{
+	int summat = 0;
+	if (menu_idx == 1) summat = 1;
+	MenuBlitShopLeft(0, menu_option);
+	MenuDrawBackground(90, 10, 310, 130, summat);
+	MenuBlitShopBuy();
+	
+}
+
+void MenuDrawShopSellSupply()
+{
+	int summat = 0;
+	if (menu_idx == 2) summat = 1;
+	MenuBlitShopLeft(0, menu_option);
+	MenuDrawBackground(90, 10, 310, 230, summat);
+	MenuBlitShopSellSupply();
+	
+}
+
+void MenuDrawShopSellEquip()
+{
+	int summat = 0;
+	if (menu_idx == 3) summat = 1;
+	MenuBlitShopLeft(0, menu_option);
+	MenuDrawBackground(90, 10, 310, 230, summat);
+	MenuBlitShopSellEquip();
+	
+}
+
+
+void MenuBlitShopSellSupply()
+{
+	int i, use;
+	MenuDrawSubWindow(100, 20, 300, 170, menu_item, menu_fonth + 2, _supply_count, menu_start, 3);
+
+	if (_supply_count == 0)
+	{
+		MenuPrintDescFull(115, 228, menu_font[0], "No item", 180);
+	}
+	else MenuPrintDescFull(115, 228, menu_font[0], master_items[supply_inventory[menu_item].item_ref].desc, 180);
+	for (i = menu_start; i < _supply_count; i++)
+	{
+		PrintString(135, 23 + ((menu_fonth + 2) * (i - menu_start)), screen, menu_font[0], master_items[supply_inventory[i].item_ref].name);
+		PrintRight(285, 23 + ((menu_fonth + 2) * (i - menu_start)), screen, menu_font[0], str(supply_inventory[i].quant));
+		use = icon_get(master_items[supply_inventory[i].item_ref].icon);
+		if (i == menu_item) TBlit(115, 21 + ((menu_fonth + 2) * (i - menu_start)), use, screen);
+		else TScaleBlit(115, 25 + ((menu_fonth + 2) * (i - menu_start)), 8, 8, use, screen);
+		FreeImage(use);
+		if (menu_start + 10 <= i) i = _supply_count + 1;
+	}
+
+}
+
+void MenuBlitShopSellEquip()
+{
+	int i, use;
+	MenuDrawSubWindow(100, 20, 300, 170, menu_item, menu_fonth + 2, _equip_count, menu_start, 3);
+
+	if (_equip_count == 0)
+	{
+		MenuPrintDescFull(115, 228, menu_font[0], "No item", 180);
+	}
+	else MenuPrintDescFull(115, 228, menu_font[0], master_items[equipment_inventory[menu_item].item_ref].desc, 180);
+	for (i = menu_start; i < _equip_count; i++)
+	{
+		PrintString(135, 23 + ((menu_fonth + 2) * (i - menu_start)), screen, menu_font[0], master_items[equipment_inventory[i].item_ref].name);
+		PrintRight(285, 23 + ((menu_fonth + 2) * (i - menu_start)), screen, menu_font[0], str(equipment_inventory[i].quant));
+		use = icon_get(master_items[equipment_inventory[i].item_ref].icon);
+		if (i == menu_item) TBlit(115, 21 + ((menu_fonth + 2) * (i - menu_start)), use, screen);
+		else TScaleBlit(115, 25 + ((menu_fonth + 2) * (i - menu_start)), 8, 8, use, screen);
+		FreeImage(use);
+		if (menu_start + 10 <= i) i = _equip_count + 1;
+	}
+
+}
+
+void MenuBlitShopBuy()
+{
+	int i, equip, item_idx;
+	MenuDrawSubWindow(100, 20, 300, 120, menu_item, menu_fonth + 2, menu_sub, menu_start, 3);
+	for (i = menu_start; i < menu_sub; i++)
+	{
+		item_idx = val(GetToken(save_display[0].text, "|", i));
+		if (master_items[item_idx].price <= money) equip = 0;
+		else equip = 1;
+		PrintString(135, 23 + ((menu_fonth + 2) * (i - menu_start)), screen, menu_font[equip], master_items[item_idx].name);
+		PrintRight(285, 23 + ((menu_fonth + 2) * (i - menu_start)), screen, menu_font[equip], str(master_items[item_idx].price * menu_number));
+		equip = icon_get(master_items[item_idx].icon);
+		if (i == menu_item) TBlit(115, 21 + ((menu_fonth + 2) * (i - menu_start)), equip, screen);
+		else TScaleBlit(115, 25 + ((menu_fonth + 2) * (i - menu_start)), 8, 8, equip, screen);
+		FreeImage(equip);
+		if (menu_start + 6 <= i) i = menu_sub + 1;
+	}
+	//if (i == equ_count) PrintString(55, 133 + ((menu_fonth + 2) * (i - menu_start)), screen, menu_font[0], "(none)"); // if near end
+
+
+	MenuDrawBackground(90, 140, 310, 230, 0);
+	
+	MenuBlitParty(105, 146, menu_cast, val(GetToken(save_display[0].text, "|", menu_item)));
+
+	for (i = 0; i < MAX_STATS; i++)
+	{
+		MenuPrintStat(105, 146, i, 0, master_cast[party[menu_cast]].stats[i]);
+	}
+}
+
+
+void MenuBlitParty(int x, int y, int member, int item_idx)
+{
+	int i;
+	if (IsEquipmentItem(item_idx))
+	{
+		for (i = 0; i < curpartysize; i++)
+		{
+			BlitEntityFrame(x + (i * 24), y + 16, master_cast[party[i]].entity, GetFrameWalk(), screen);
+		}
+	}
+	else
+	{
+		for (i = 0; i < curpartysize; i++)
+		{
+			BlitEntityFrame(x + (i * 24), y + 16, master_cast[party[i]].entity, GetFrameSad(), screen);
+		}
+	}
+	PrintString(x + 115, y, screen, menu_font[0], master_cast[party[member]].name);
+	//PrintString(x + 35, y + 10, screen, menu_font[0], master_classes[master_cast[party[member]].class_ref].name);
+	//PrintString(x + 115, y, screen, menu_font[0], "Level: ");
+	//PrintRight(x + 185, y, screen, menu_font[0], str(master_cast[party[member]].level));
+	PrintString(x + 115, y + 10, screen, menu_font[0], "HP:");
+	PrintRight(x + 161, y + 10, screen, menu_font[0], str(master_cast[party[member]].cur_hp)+"/");
+	PrintString(x + 115, y + 20, screen, menu_font[0], "MP:");
+	PrintRight(x + 161, y + 20, screen, menu_font[0], str(master_cast[party[member]].cur_mp)+"/");
+}
+
+void MenuBlitShopLeft(int active, int selected)
+{
+	MenuDrawBackground(10, 70, 80, 230, active);
+	PrintString(16, selected * 30 + 85, screen, menu_font[0], ">");
+	PrintString(22, 85, screen, menu_font[0], "BUY");
+	PrintRight(68, 95, screen, menu_font[0], "ITEMS");
+	PrintString(22, 115, screen, menu_font[0], "SELL");
+	PrintRight(68, 125, screen, menu_font[0], "SUPPLY");
+	PrintString(22, 145, screen, menu_font[0], "SELL");
+	PrintRight(68, 155, screen, menu_font[0], "EQUIP");
+	PrintString(22, 175, screen, menu_font[0], "SEKRIT");
+	PrintString(22, 205, screen, menu_font[0], "EXIT");
+	MenuBlitShopTop();
+}
+
+void MenuBlitShopTop()
+{
+	MenuDrawBackground(10, 10, 80, 60, 0);
+	PrintRight(70, 20, screen, menu_font[0], "A Shop");
+	PrintString(20, 35, screen, menu_font[0], moneyname + ":");
+	PrintRight(70, 45, screen, menu_font[0], str(money));
+}

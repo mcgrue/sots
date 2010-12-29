@@ -1,0 +1,66 @@
+// Just a master-include file...
+//
+//
+
+/*************************************************/
+/************* Non-library includes **************/
+/*************************************************/
+
+// A bunch of general-use functions that are awesome.
+// also, they're used by all three of the libraries, so 
+// where they go, so should this.
+#include "vc/rend/general.vc" 		// People
+
+// Error-reporting and handling is good!
+#include "vc/util/error_handler.vc" 	// Zip
+
+// Oh yeah, a class to handle those sexy icons.
+#include "vc/util/icons.vc" 			// Grue
+
+#include "vc/util/camscroll.lib.vc"		// Kildorf
+
+#include "vc/sfx.vc"	// resources
+
+
+
+/*************************************************/
+/******************* libraries *******************/
+/*************************************************/
+
+//Loads Grue's RPG Subsystems library. (Party/Items/Equip/Skills/Characters)
+#include "vc/simpletype/data.vc" 		// Grue
+
+//loads Vec's Wonderous RPG-world Library! (Fades/vclayer/weather/special_Fx)
+#include "vc/v1_rpg/v1_rpg.vc" 			// Vec
+
+//loads Zip's Amazing V1-Compatibility Library (...menus!)
+#include "vc/v1_menu/menu_system.vc" // Zip
+
+
+
+
+#include "vc/rend/sprite.vc" 		// Gayo
+#include "vc/rend/mcgrender.vc" 	// Grue
+
+
+#include "vc/sots/hud.vc" 	// Grue
+
+
+//
+// These wrappers given to make a unified naming sceme for the 
+// resource-loading functions for clarity's sake to the user.
+//
+
+// the resource-loader for the Sully, Simple and Clean library
+void SSAC_LoadResources() {
+	SSAC_InitData();
+}
+
+// the resource-loader for the Simple Menu library
+void SMENU_LoadResources() {
+	SMENU_InitMenus();
+}
+
+
+
+
