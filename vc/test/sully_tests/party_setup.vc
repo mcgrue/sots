@@ -1,4 +1,4 @@
-
+/*
 
 void _test_clear_party()
 {
@@ -31,3 +31,4 @@ void test_party_setup()
 	_test_clear_party();
 }
 
+*/
