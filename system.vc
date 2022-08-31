@@ -43,8 +43,8 @@ int arTemp[100];
 
 void AutoExec()
 {
-	runTests();
-	exit("penis");
+	// runTests();
+	// exit("penis");
 
 	//CallFunction("v3splash");		//calls the v3splash() function, if it exists.
 	//v3splash();
